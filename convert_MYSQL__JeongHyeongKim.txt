@@ -1,0 +1,1595 @@
+
+    
+# 테이블 순서는 관계를 고려하여 한 번에 실행해도 에러가 발생하지 않게 정렬되었습니다.
+# 제약조건이 sys~~~으로 시작하는 부분은 sqldeveloper실행 후 제약조건을 직접 조회 후 제거해주셔야 합니다. (이름이 설정되어있지 않음.)
+
+# Department Table Create SQL
+CREATE TABLE Department
+(
+    dept_id      VARCHAR(30)    NOT NULL COMMENT '부서고유번호', 
+    dept_name    VARCHAR(30)    NOT NULL COMMENT '부서명', 
+    dept_cost    INT             NULL COMMENT '누적비용', 
+    br_id        VARCHAR(30)    NULL COMMENT '소속지사', 
+    CONSTRAINT DEPARTMENT_PK PRIMARY KEY (dept_id)
+);
+
+
+ALTER TABLE Department COMMENT '부서';
+
+/* Moved to CREATE TABLE
+COMMENT ON COLUMN Department.dept_id IS '부서고유번호' */
+/
+
+/* Moved to CREATE TABLE
+COMMENT ON COLUMN Department.dept_name IS '부서명' */
+/
+
+/* Moved to CREATE TABLE
+COMMENT ON COLUMN Department.dept_cost IS '누적비용' */
+/
+
+/* Moved to CREATE TABLE
+COMMENT ON COLUMN Department.br_id IS '소속지사' */
+/
+
+
+# Branch Table Create SQL
+CREATE TABLE Branch
+(
+    br_id          VARCHAR(30)     NOT NULL COMMENT '지사고유번호', 
+    br_name        VARCHAR(30)     NOT NULL COMMENT '지사이름', 
+    br_location    VARCHAR(50)     NOT NULL COMMENT '지사위치', 
+    br_tel         VARCHAR(20)     NOT NULL COMMENT '지사대표전화번호', 
+    br_img         VARCHAR(100)    NULL COMMENT '지사 사진', 
+    CONSTRAINT BRANCH_PK PRIMARY KEY (br_id)
+);
+
+ALTER TABLE Branch COMMENT '지사';
+
+/* Moved to CREATE TABLE
+COMMENT ON COLUMN Branch.br_id IS '지사고유번호' */
+/
+
+/* Moved to CREATE TABLE
+COMMENT ON COLUMN Branch.br_name IS '지사이름' */
+/
+
+/* Moved to CREATE TABLE
+COMMENT ON COLUMN Branch.br_location IS '지사위치' */
+/
+
+/* Moved to CREATE TABLE
+COMMENT ON COLUMN Branch.br_tel IS '지사대표전화번호' */
+/
+
+/* Moved to CREATE TABLE
+COMMENT ON COLUMN Branch.br_img IS '지사 사진' */
+/
+
+
+# Employee Table Create SQL
+CREATE TABLE Employee
+(
+    emp_id             VARCHAR(30)     NOT NULL COMMENT '사원번호', 
+    emp_name           VARCHAR(20)     NOT NULL COMMENT '이름', 
+    emp_pwd            VARCHAR(60)     NOT NULL COMMENT '패스워드', 
+    dept_id            VARCHAR(30)     NOT NULL COMMENT '부서고유번호', 
+    br_id              VARCHAR(30)     NOT NULL COMMENT '지사고유번호', 
+    emp_level          VARCHAR(10)     NOT NULL COMMENT '사원레벨(관리자)', 
+    emp_enabled        VARCHAR(10)     NOT NULL COMMENT '계정잠금여부', 
+    emp_failure_cnt    INT              NOT NULL COMMENT '로그인실패횟수', 
+    emp_email          VARCHAR(100)    NOT NULL COMMENT '이메일', 
+    CONSTRAINT EMPLOYEE_PK PRIMARY KEY (emp_id)
+);
+
+ALTER TABLE Employee COMMENT '사원';
+
+
+
+
+ALTER TABLE Employee
+    ADD CONSTRAINT FK_Employee_br_id_Branch_br_id FOREIGN KEY (br_id)
+        REFERENCES Branch (br_id);
+
+ALTER TABLE Employee
+    ADD CONSTRAINT FK_Employee_dept_id_Department FOREIGN KEY (dept_id)
+        REFERENCES Department (dept_id);
+
+
+# Meeting_Room Table Create SQL
+CREATE TABLE Meeting_Room
+(
+    mr_id          VARCHAR(30)     NOT NULL COMMENT '회의실고유번호', 
+    mr_name        VARCHAR(30)     NOT NULL COMMENT '회의실 이름', 
+    br_id          VARCHAR(30)     NOT NULL COMMENT '지사 고유번호', 
+    mr_limit       INT              NOT NULL COMMENT '회의실 수용인원', 
+    mr_price       INT              NOT NULL COMMENT '회의실 비용', 
+    mr_area        INT              NOT NULL COMMENT '회의실 면적', 
+    mr_network     VARCHAR(15)     NOT NULL COMMENT '회의실 네트워크', 
+    mr_type        VARCHAR(15)     NOT NULL COMMENT '회의실 유형', 
+    emp_id         VARCHAR(30)     NOT NULL COMMENT '회의실 관리자', 
+    mr_location    VARCHAR(100)    NOT NULL COMMENT '회의실 위치', 
+    mr_img         VARCHAR(100)    NULL COMMENT '회의실 사진', 
+    CONSTRAINT MEETING_ROOM_PK PRIMARY KEY (mr_id)
+);
+
+
+
+ALTER TABLE Meeting_Room COMMENT '회의실';
+
+
+
+ALTER TABLE Meeting_Room
+    ADD CONSTRAINT FK_Meeting_Room_br_id_Branch_b FOREIGN KEY (br_id)
+        REFERENCES Branch (br_id);
+        
+ALTER TABLE meeting_room
+ADD CONSTRAINT FK_Meeting_room_emp_id_Emplo FOREIGN KEY (emp_id) 
+REFERENCES employee(emp_id);
+
+# insert into reservation Table Create SQL
+CREATE TABLE insert into reservation
+(
+    res_id             VARCHAR(30)     NOT NULL COMMENT '회의실 예약번호', 
+    emp_id             VARCHAR(30)     NOT NULL COMMENT '신청자 아이디', 
+    mr_id              VARCHAR(30)     NOT NULL COMMENT '회의실 아이디', 
+    res_start_time     DATETIME             NOT NULL COMMENT '시작시간', 
+    res_end_time       DATETIME             NOT NULL COMMENT '종료시간', 
+    res_time           DATETIME             NOT NULL COMMENT '신청날짜', 
+    res_purpose        VARCHAR(100)    NOT NULL COMMENT '목적', 
+    res_attend_cnt     INT              NOT NULL COMMENT '참석인원', 
+    res_add_request    VARCHAR(100)    NOT NULL COMMENT '추가요청사항', 
+    res_state          INT              NOT NULL COMMENT '예약 상태', 
+    res_snack          INT              NOT NULL COMMENT '간식준비여부', 
+    res_type           VARCHAR(50)     NOT NULL COMMENT '회의 구분', 
+    res_cancle         LONGTEXT             NULL COMMENT '취소사유', 
+    res_cost           INT              NOT NULL COMMENT '예약 비용', 
+    res_outside        INT              NOT NULL COMMENT '외부인 인원 수', 
+    CONSTRAINT insert into reservation_PK PRIMARY KEY (res_id)
+);
+
+ALTER TABLE insert into reservation COMMENT '예약';
+
+
+
+ALTER TABLE insert into reservation
+    ADD CONSTRAINT FK_insert into reservation_emp_id_Employee FOREIGN KEY (emp_id)
+        REFERENCES Employee (emp_id);
+
+ALTER TABLE insert into reservation
+    ADD CONSTRAINT FK_insert into reservation_mr_id_Meeting_R FOREIGN KEY (mr_id)
+        REFERENCES Meeting_Room (mr_id);
+
+
+# Equipment Table Create SQL
+CREATE TABLE Equipment
+(
+    eq_id    VARCHAR(10)    NOT NULL COMMENT '기자재 고유번호', 
+    mr_id    VARCHAR(30)    NOT NULL COMMENT '관리회의실', 
+    CONSTRAINT EQUIPMENT_PK PRIMARY KEY (eq_id)
+);
+
+ALTER TABLE Equipment COMMENT '기자재';
+
+
+ALTER TABLE Equipment
+    ADD CONSTRAINT FK_Equipment_mr_id_meeting_roo FOREIGN KEY (mr_id)
+        REFERENCES meeting_room (mr_id);
+
+
+# Department_Head Table Create SQL
+CREATE TABLE Department_Head
+(
+    emp_id     VARCHAR(30)    NOT NULL COMMENT '사원 아이디', 
+    dept_id    VARCHAR(30)    NOT NULL COMMENT '부서 아이디', 
+    CONSTRAINT DEPARTMENT_HEAD_PK PRIMARY KEY (emp_id, dept_id)
+);
+
+ALTER TABLE Department_Head COMMENT '상위결제자';
+
+
+
+
+ALTER TABLE Department_Head
+    ADD CONSTRAINT FK_Department_Head_emp_id_Empl FOREIGN KEY (emp_id)
+        REFERENCES Employee (emp_id);
+
+ALTER TABLE Department_Head
+    ADD CONSTRAINT FK_Department_Head_dept_id_Dep FOREIGN KEY (dept_id)
+        REFERENCES Department (dept_id);
+
+# Attendee Table Create SQL
+CREATE TABLE Attendee
+(
+    res_id         VARCHAR(30)    NOT NULL COMMENT '회의실 예약번호', 
+    attend_id      VARCHAR(30)    NOT NULL COMMENT '참석자 사원번호', 
+    attend_type    VARCHAR(10)    NOT NULL COMMENT '참석자코드', 
+    dept_id        VARCHAR(30)    NOT NULL COMMENT '부서고유번호', 
+    CONSTRAINT ATTENDEE_PK PRIMARY KEY (res_id, attend_id)
+);
+
+ALTER TABLE Attendee COMMENT '회의 참석자';
+
+
+
+ALTER TABLE Attendee
+    ADD CONSTRAINT FK_Attendee_res_id_insert into reservation FOREIGN KEY (res_id)
+        REFERENCES insert into reservation (res_id);
+
+ALTER TABLE Attendee
+    ADD CONSTRAINT FK_Attendee_attend_id_Employee FOREIGN KEY (attend_id)
+        REFERENCES Employee (emp_id);
+
+ALTER TABLE Attendee
+    ADD CONSTRAINT FK_Attendee_dept_id_Department FOREIGN KEY (dept_id)
+        REFERENCES Department (dept_id);
+
+
+# insert into equipment_reservation Table Create SQL
+CREATE TABLE insert into equipment_reservation
+(
+    res_id    VARCHAR(30)    NOT NULL COMMENT '회의실 예약번호', 
+    eq_id     VARCHAR(30)    NOT NULL COMMENT '기자재 고유번호', 
+    CONSTRAINT insert into equipment_reservation_PK PRIMARY KEY (res_id, eq_id)
+);
+
+ALTER TABLE insert into equipment_reservation COMMENT '기자재 예약';
+
+
+
+ALTER TABLE insert into equipment_reservation
+    ADD CONSTRAINT FK_insert into equipment_reservation_res_i FOREIGN KEY (res_id)
+        REFERENCES insert into reservation (res_id);
+
+ALTER TABLE insert into equipment_reservation
+    ADD CONSTRAINT FK_insert into equipment_reservation_eq_id FOREIGN KEY (eq_id)
+        REFERENCES Equipment (eq_id);
+
+
+# Notice Table Create SQL
+CREATE TABLE Notice
+(
+    notice_id         INT             NOT NULL COMMENT '공지사항글번호', 
+    notice_title      VARCHAR(50)    NOT NULL COMMENT '공지제목', 
+    notice_content    LONGTEXT            NOT NULL COMMENT '공지내용', 
+    notice_writer     VARCHAR(30)    NOT NULL COMMENT '작성자', 
+    notice_date       DATETIME            NOT NULL COMMENT '작성일', 
+    CONSTRAINT NOTICE_PK PRIMARY KEY (notice_id)
+);
+
+ALTER TABLE Notice COMMENT '공지사항';
+
+
+
+ALTER TABLE Notice
+    ADD CONSTRAINT FK_Notice_notice_writer_Employ FOREIGN KEY (notice_writer)
+        REFERENCES Employee (emp_id);
+
+
+# insert into recognition Table Create SQL
+CREATE TABLE insert into recognition
+(
+    rec_id             VARCHAR(30)    NOT NULL COMMENT '승인관리번호', 
+    dapt_head_id       VARCHAR(30)    NULL COMMENT '상위관리자', 
+    man_id             VARCHAR(30)    NULL COMMENT '관리자', 
+    rec_accept_date    DATETIME            NOT NULL COMMENT '승인날짜', 
+    res_id             VARCHAR(30)    NOT NULL COMMENT '회의실 에약번호', 
+    rec_refuse         LONGTEXT            NULL COMMENT '반려사유', 
+    CONSTRAINT insert into recognition_PK PRIMARY KEY (rec_id)
+);
+
+ALTER TABLE insert into recognition COMMENT '승인';
+
+
+
+ALTER TABLE insert into recognition
+    ADD CONSTRAINT FK_insert into recognition_res_id_Reservat FOREIGN KEY (res_id)
+        REFERENCES insert into reservation (res_id);
+
+ALTER TABLE insert into recognition
+    ADD CONSTRAINT FK_insert into recognition_dapt_head_id_Em FOREIGN KEY (dapt_head_id)
+        REFERENCES Employee (emp_id);
+
+ALTER TABLE insert into recognition
+    ADD CONSTRAINT FK_insert into recognition_man_id_Employee FOREIGN KEY (man_id)
+        REFERENCES Employee (emp_id);
+
+
+
+
+insert into Branch(br_id, br_name, br_location, br_tel)
+values ('br_0001','본사', '서울 종로구 재동', '02-000-0000');
+insert into Branch(br_id, br_name, br_location, br_tel)
+values ('br_0002','GS강서타워', '서울 강서구', '02-111-1111');
+insert into  Branch(br_id, br_name, br_location, br_tel)
+values ('br_0003', '삼환빌딩', '서울 종로구 운니동', '02-222-2222');
+insert into  Branch(br_id, br_name, br_location, br_tel)
+values ('br_0004', '데이터센터', '서울 가산디지털단지', '02-333-3333');
+
+
+
+insert 
+into Department(dept_id, dept_name, dept_cost, br_id)
+values ('dept_0001', '인사파트', 0,'br_0001');
+insert into Department(dept_id, dept_name, dept_cost, br_id)
+values ('dept_0002', '재무관리팀', 0,'br_0001');
+insert into  Department(dept_id, dept_name, dept_cost, br_id)
+ values ('dept_0003', '구매팀', 0,'br_0001');
+ insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values ('dept_0004', '비서실', 0,'br_0001');
+ insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values('dept_0005', '사업팀', 0,'br_0001');
+
+  insert into Department(dept_id, dept_name, dept_cost,  br_id)
+ values('dept_0006', '플랜트/ICT사업팀', 0,'br_0002');
+  insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values ('dept_0007', 'Commerce파트', 0,'br_0002');
+ insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values ('dept_0008', 'CRM파트', 0,'br_0002');
+ insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values('dept_0009', '데이터사업파트', 0,'br_0002');
+insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values ('dept_0010', '유통/물류파트', 0,'br_0002');
+
+insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values('dept_0011', 'DB파트', 0,'br_0003');
+  insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values ('dept_0012', '서버파트', 0,'br_0003');
+insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values('dept_0013', '재무파트', 0,'br_0003');
+ insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values('dept_0014', '모바일파트', 0,'br_0003');
+ insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values('dept_0015', '인프라파트', 0,'br_0003');
+
+ insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values('dept_0016', '네트워크파트', 0,'br_0004');
+ insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values('dept_0017', '클라우드파트', 0,'br_0004');
+ insert into Department(dept_id, dept_name, dept_cost, br_id)
+ values('dept_0018', '보안파트', 0,'br_0004');
+ insert into Department(dept_id, dept_name, dept_cost, br_id)
+  values('dept_0019', 'DB설계파트', 0,'br_0004');
+ insert into Department(dept_id, dept_name, dept_cost, br_id)
+values('dept_0020', '신사업파트', 0,'br_0004');
+
+
+
+insert
+into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values ('it0001', '갈매기', '1111', 'dept_0001', 'br_0001', 'L_2', 'NO', 0, 'it0001@gsitm.com');
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values ('it0002', '이효빈', '1111', 'dept_0001', 'br_0001', 'L_1', 'NO', 0, 'it0002@gsitm.com');
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0003', '이윤영', '1111', 'dept_0001', 'br_0001', 'L_3', 'NO', 0, 'it0003@gsitm.com');
+
+
+insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0004', '이종윤', '1111', 'dept_0002', 'br_0001', 'L_3', 'NO', 0, 'it0004@gsitm.com');
+insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values ('it0005', '김재율', '1111', 'dept_0002', 'br_0001', 'L_0', 'NO', 0, 'it0005@gsitm.com');
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0006', '관리자', '1111', 'dept_0002', 'br_0001', 'L_0', 'NO', 0, 'it0006@gsitm.com');
+
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0007', '김원빈', '1111', 'dept_0003', 'br_0001', 'L_3', 'NO', 0, 'it0007@gsitm.com');
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0008', '자는중', '1111', 'dept_0003', 'br_0001', 'L_0', 'NO', 0, 'it0008@gsitm.com');
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0009', '이주현', '1111', 'dept_0003', 'br_0001', 'L_0', 'NO', 0, 'it0009@gsitm.com');
+
+insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0010', '김칸쵸', '1111', 'dept_0004', 'br_0001', 'L_3', 'NO', 0, 'it0010@gsitm.com');
+insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0011', '소미닉', '1111', 'dept_0005', 'br_0001', 'L_3', 'NO', 0, 'it0011@gsitm.com') ;
+
+# ######################-본사#############################
+
+insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values ('it0012', '송민기', '1111', 'dept_0006', 'br_0002', 'L_3', 'NO', 0, 'it0012@gsitm.com');
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0013', '김나윤', '1111', 'dept_0006', 'br_0002', 'L_0', 'NO', 0, 'it0013@gsitm.com');
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0014', '이수근', '1111', 'dept_0006', 'br_0002', 'L_0', 'NO', 0, 'it0014@gsitm.com');
+
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0015', '강호동', '1111', 'dept_0007', 'br_0002', 'L_3', 'NO', 0, 'it0015@gsitm.com');
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0016', '류현진', '1111', 'dept_0007', 'br_0002', 'L_0', 'NO', 0, 'it0016@gsitm.com');
+insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0017', '박찬호', '1111', 'dept_0007', 'br_0002', 'L_0', 'NO', 0, 'it0017@gsitm.com');
+
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0018', '조성윤', '1111', 'dept_0008', 'br_0002', 'L_3', 'NO', 0, 'it0018@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0019', '조지아조', '1111', 'dept_0008', 'br_0002', 'L_0', 'NO', 0, 'it0019@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0020', '김정형', '1111', 'dept_0008', 'br_0002', 'L_0', 'NO', 0, 'it0020@gsitm.com');
+
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0021', '역종', '1111', 'dept_0009', 'br_0002', 'L_3', 'NO', 0, 'it0021@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0022', '강사종윤', '1111', 'dept_0010', 'br_0002', 'L_3', 'NO', 0, 'it0022@gsitm.com');
+
+# ###################-GS강서타워##############################-
+
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0023', '김혜자', '1111', 'dept_0011', 'br_0003', 'L_3', 'NO', 0, 'it0023@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0024', '이병헌', '1111', 'dept_0011', 'br_0003', 'L_0', 'NO', 0, 'it0024@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0025', '스파이더맨', '1111', 'dept_0011', 'br_0003', 'L_0', 'NO', 0, 'it0025@gsitm.com');
+
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0026', '토니스타크', '1111', 'dept_0012', 'br_0003', 'L_3', 'NO', 0, 'it0026@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0027', '토르', '1111', 'dept_0012', 'br_0003', 'L_0', 'NO', 0, 'it0027@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0028', '율종국', '1111', 'dept_0012', 'br_0003', 'L_0', 'NO', 0, 'it0028@gsitm.com');
+
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0029', '모아이', '1111', 'dept_0013', 'br_0003', 'L_3', 'NO', 0, 'it0029@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0030', '도굴꾼', '1111', 'dept_0013', 'br_0003', 'L_0', 'NO', 0, 'it0030@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0031', '마피아', '1111', 'dept_0013', 'br_0003', 'L_0', 'NO', 0, 'it0031@gsitm.com');
+
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+ values ('it0032', '성직자', '1111', 'dept_0014', 'br_0003', 'L_3', 'NO', 0, 'it0032@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0033', '정치인', '1111', 'dept_0015', 'br_0003', 'L_3', 'NO', 0, 'it0033@gsitm.com');
+
+# ########################-삼환빌딩##########################
+
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0034', '옥택연', '1111', 'dept_0016', 'br_0004', 'L_3', 'NO', 0, 'it0034@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0035', '로꼬', '1111', 'dept_0016', 'br_0004', 'L_0', 'NO', 0, 'it0035@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0036', '율재율', '1111', 'dept_0016', 'br_0004', 'L_0', 'NO', 0, 'it0036@gsitm.com');
+
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0037', '쭈구리', '1111', 'dept_0017', 'br_0004', 'L_3', 'NO', 0, 'it0037@gsitm.com');
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0038', '의리맨', '1111', 'dept_0017', 'br_0004', 'L_0', 'NO', 0, 'it0038@gsitm.com');
+INSERT INTO employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0039', '김광현', '1111', 'dept_0017', 'br_0004', 'L_0', 'NO', 0, 'it0039@gsitm.com');
+
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0040', '김병현', '1111', 'dept_0018', 'br_0004', 'L_3', 'NO', 0, 'it0040@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0041', '손흥민', '1111', 'dept_0018', 'br_0004', 'L_0', 'NO', 0, 'it0041@gsitm.com');
+  insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0042', '파이팅', '1111', 'dept_0018', 'br_0004', 'L_0', 'NO', 0, 'it0042@gsitm.com');
+
+ insert into  employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0043', '땡종', '1111', 'dept_0019', 'br_0004', 'L_3', 'YES', 5, 'it00243@gsitm.com');
+ insert into employee(emp_id, emp_name, emp_pwd, dept_id, br_id, emp_level, emp_enabled, emp_failure_cnt, emp_email)
+values('it0044', '테러범', '1111', 'dept_0020', 'br_0004', 'L_3', 'NO', 0, 'it0044@gsitm.com');
+
+
+
+insert 
+into notice(notice_id, notice_title, notice_content, notice_writer, notice_date)
+values(1, '시스템 오픈 기념 이벤트', '첫 이용자에게 푸짐한 선물을!', 'it0001', '2019-05-16');
+  insert into notice(notice_id, notice_title, notice_content, notice_writer, notice_date)
+values(2, '시스템 오픈 기념 이벤트 당첨자 공지', '첫 이용자는 김칸쵸님입니다! 축하드리며 앞으로도 많은 이용 부탁드립니다', 'it0001', '2019-05-16');
+
+
+# ######################-공지사항 완료############################-
+
+# ###################### 부서장 목록 시작###########################
+
+insert 
+into department_head(emp_id, dept_id)
+values('it0003','dept_0001');
+  insert into department_head(emp_id, dept_id)
+values('it0004','dept_0002');
+  insert into department_head(emp_id, dept_id)
+values ('it0007','dept_0003');
+  insert into department_head(emp_id, dept_id)
+values('it0010','dept_0004');
+ insert into department_head(emp_id, dept_id)
+values('it0011','dept_0005');
+
+  insert into department_head(emp_id, dept_id)
+values('it0012','dept_0006');
+  insert into department_head(emp_id, dept_id)
+values('it0015','dept_0007');
+  insert into department_head(emp_id, dept_id)
+values('it0018','dept_0008');
+  insert into department_head(emp_id, dept_id)
+values('it0021','dept_0009');
+  insert into department_head(emp_id, dept_id)
+values('it0022','dept_0010');
+
+  insert into department_head(emp_id, dept_id)
+values('it0023','dept_0011');
+  insert into department_head(emp_id, dept_id)
+values('it0026','dept_0012');
+  insert into department_head(emp_id, dept_id)
+values('it0029','dept_0013');
+  insert into department_head(emp_id, dept_id)
+values('it0032','dept_0014');
+  insert into department_head(emp_id, dept_id)
+values('it0033','dept_0015');
+
+  insert into department_head(emp_id, dept_id)
+values('it0034','dept_0016');
+  insert into department_head(emp_id, dept_id)
+values('it0037','dept_0017');
+  insert into department_head(emp_id, dept_id)
+values('it0040','dept_0018');
+  insert into department_head(emp_id, dept_id)
+values('it0043','dept_0019');
+  insert into department_head(emp_id, dept_id)
+values('it0044','dept_0020');
+
+
+insert
+into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0001', '몰디브','br_0001' ,15 ,5000 ,20,'net_1' , 'mr_type_0', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0002', '파라다이스','br_0001' ,15 ,5000 ,20,'net_1' , 'mr_type_0', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0003', '카리브','br_0001' ,15 ,5000 ,20,'net_1' , 'mr_type_0', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0004', '대회의실','br_0001' ,15 ,5000 ,20,'net_1' , 'mr_type_1', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0005', '대교육장','br_0001' ,15 ,5000 ,20,'net_1' , 'mr_type_2', 'it0001', '1F', NULL);;
+# -본사
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0006', '칸쵸집','br_0002' ,15 ,5000 ,20 ,'net_1' ,'mr_type_0', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0007', '뭉이집','br_0002' ,15 ,5000 ,20 ,'net_1' ,'mr_type_0', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0008', '집가자','br_0002' ,15 ,5000 ,20 ,'net_1' ,'mr_type_0', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0009', '대회의실','br_0002' ,15 ,5000 ,20 ,'net_1' ,'mr_type_1', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0010', '대교육장','br_0002' ,15 ,5000 ,20 ,'net_1' ,'mr_type_2', 'it0001', '1F', NULL);;
+
+ insert into  meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+ values ('mr_0011', '부산','br_0003' ,15 ,5000 ,20,'net_1' , 'mr_type_0', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0012', '서울집','br_0003' ,15 ,5000 ,20,'net_1' , 'mr_type_0', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0013', '종로길','br_0003' ,15 ,5000 ,20,'net_1' , 'mr_type_0', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0014', '대회의실','br_0003' ,15 ,5000 ,20,'net_1' , 'mr_type_1', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0015', '대교육장','br_0003' ,15 ,5000 ,20,'net_1' , 'mr_type_2', 'it0001', '1F', NULL);;
+
+ insert into  meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0016', '몰디브','br_0004' ,15 ,5000 ,20,'net_1' , 'mr_type_0', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0017', '파라다이스','br_0004' ,15 ,5000 ,20,'net_1' , 'mr_type_0', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0018', '카리브','br_0004' ,15 ,5000 ,20,'net_1' , 'mr_type_0', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0019', '대회의실','br_0004' ,15 ,5000 ,20,'net_1' , 'mr_type_1', 'it0002', '1F', NULL);;
+  insert into meeting_room(mr_id, mr_name, br_id, mr_limit, mr_price, mr_area, mr_network, mr_type, emp_id, mr_location, mr_img)
+values('mr_0020', '대교육장','br_0004' ,15 ,5000 ,20,'net_1' , 'mr_type_2', 'it0001', '1F', NULL);;
+
+
+
+insert 
+into equipment (eq_id, mr_id)
+values('N_0001','mr_0001');
+ insert into  equipment (eq_id, mr_id)
+values('N_0002','mr_0001');
+  insert into equipment (eq_id, mr_id)
+values('N_0003','mr_0001');
+  insert into equipment (eq_id, mr_id)
+values('V_0001','mr_0001');
+  insert into equipment (eq_id, mr_id)
+values('WB_0001','mr_0001');
+  insert into equipment (eq_id, mr_id)
+values('M_0001','mr_0001');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0004','mr_0002');
+  insert into equipment (eq_id, mr_id)
+values('N_0005','mr_0002');
+  insert into equipment (eq_id, mr_id)
+values('N_0006','mr_0002');
+  insert into equipment (eq_id, mr_id)
+values('V_0002','mr_0002');
+  insert into equipment (eq_id, mr_id)
+values('WB_0002','mr_0002');
+  insert into equipment (eq_id, mr_id)
+values('M_0002','mr_0002');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0007','mr_0003');
+  insert into equipment (eq_id, mr_id)
+values('N_0008','mr_0003');
+  insert into equipment (eq_id, mr_id)
+values('N_0009','mr_0003');
+  insert into equipment (eq_id, mr_id)
+values('V_0003','mr_0003');
+  insert into equipment (eq_id, mr_id)
+values('WB_0003','mr_0003');
+  insert into equipment (eq_id, mr_id)
+values('M_0003','mr_0003');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0010','mr_0004');
+  insert into equipment (eq_id, mr_id)
+values('N_0011','mr_0004');
+  insert into equipment (eq_id, mr_id)
+values('N_0012','mr_0004');
+  insert into equipment (eq_id, mr_id)
+values('V_0004','mr_0004');
+  insert into equipment (eq_id, mr_id)
+values('WB_0004','mr_0004');
+  insert into equipment (eq_id, mr_id)
+values('M_0004','mr_0004');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0013','mr_0005');
+  insert into equipment (eq_id, mr_id)
+values('N_0014','mr_0005');
+  insert into equipment (eq_id, mr_id)
+values('N_0015','mr_0005');
+  insert into equipment (eq_id, mr_id)
+values('V_0005','mr_0005');
+  insert into equipment (eq_id, mr_id)
+values('WB_0005','mr_0005');
+  insert into equipment (eq_id, mr_id)
+values('M_0005','mr_0005');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0016','mr_0006');
+  insert into equipment (eq_id, mr_id)
+values('N_0017','mr_0006');
+  insert into equipment (eq_id, mr_id)
+values('N_0018','mr_0006');
+  insert into equipment (eq_id, mr_id)
+values('V_0006','mr_0006');
+  insert into equipment (eq_id, mr_id)
+values('WB_0006','mr_0006');
+  insert into equipment (eq_id, mr_id)
+values('M_0006','mr_0006');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0019','mr_0007');
+  insert into equipment (eq_id, mr_id)
+values('N_0020','mr_0007');
+  insert into equipment (eq_id, mr_id)
+values('N_0021','mr_0007');
+  insert into equipment (eq_id, mr_id)
+values('V_0007','mr_0007');
+  insert into equipment (eq_id, mr_id)
+values('WB_0007','mr_0007');
+  insert into equipment (eq_id, mr_id)
+values('M_0007','mr_0007');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0022','mr_0008');
+  insert into equipment (eq_id, mr_id)
+values('N_0023','mr_0008');
+  insert into equipment (eq_id, mr_id)
+values('N_0024','mr_0008');
+  insert into equipment (eq_id, mr_id)
+values('V_0008','mr_0008');
+  insert into equipment (eq_id, mr_id)
+values('WB_0008','mr_0008');
+  insert into equipment (eq_id, mr_id)
+values('M_0008','mr_0008');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0025','mr_0009');
+  insert into equipment (eq_id, mr_id)
+values('N_0026','mr_0009');
+  insert into equipment (eq_id, mr_id)
+values('N_0027','mr_0009');
+  insert into equipment (eq_id, mr_id)
+values('V_0009','mr_0009');
+  insert into equipment (eq_id, mr_id)
+values('WB_0009','mr_0009');
+  insert into equipment (eq_id, mr_id)
+values('M_0009','mr_0009');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0028','mr_0010');
+  insert into equipment (eq_id, mr_id)
+values('N_0029','mr_0010');
+  insert into equipment (eq_id, mr_id)
+values('N_0030','mr_0010');
+  insert into equipment (eq_id, mr_id)
+values('V_0010','mr_0010');
+  insert into equipment (eq_id, mr_id)
+values('WB_0010','mr_0010');
+  insert into equipment (eq_id, mr_id)
+values('M_0010','mr_0010');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0031','mr_0011');
+  insert into equipment (eq_id, mr_id)
+values('N_0032','mr_0011');
+  insert into equipment (eq_id, mr_id)
+values('N_0033','mr_0011');
+  insert into equipment (eq_id, mr_id)
+values('V_0011','mr_0011');
+  insert into equipment (eq_id, mr_id)
+values('WB_0011','mr_0011');
+  insert into equipment (eq_id, mr_id)
+values('M_0011','mr_0011');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0034','mr_0012');
+  insert into equipment (eq_id, mr_id)
+values('N_0035','mr_0012');
+  insert into equipment (eq_id, mr_id)
+values('N_0036','mr_0012');
+  insert into equipment (eq_id, mr_id)
+values('V_0012','mr_0012');
+  insert into equipment (eq_id, mr_id)
+values('WB_0012','mr_0012');
+  insert into equipment (eq_id, mr_id)
+values('M_0012','mr_0012');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0037','mr_0013');
+  insert into equipment (eq_id, mr_id)
+values('N_0038','mr_0013');
+ insert into  equipment (eq_id, mr_id)
+values('N_0039','mr_0013');
+  insert into equipment (eq_id, mr_id)
+values('V_0013','mr_0013');
+  insert into equipment (eq_id, mr_id)
+values('WB_0013','mr_0013');
+  insert into equipment (eq_id, mr_id)
+values('M_0013','mr_0013');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0040','mr_0014');
+  insert into equipment (eq_id, mr_id)
+values('N_0041','mr_0014');
+  insert into equipment (eq_id, mr_id)
+values('N_0042','mr_0014');
+  insert into equipment (eq_id, mr_id)
+values('V_0014','mr_0014');
+  insert into equipment (eq_id, mr_id)
+values('WB_0014','mr_0014');
+  insert into equipment (eq_id, mr_id)
+values('M_0014','mr_0014');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0043','mr_0015');
+  insert into equipment (eq_id, mr_id)
+values('N_0044','mr_0015');
+  insert into equipment (eq_id, mr_id)
+values('N_0045','mr_0015');
+  insert into equipment (eq_id, mr_id)
+values('V_0015','mr_0015');
+  insert into equipment (eq_id, mr_id)
+values('WB_0015','mr_0015');
+  insert into equipment (eq_id, mr_id)
+values('M_0015','mr_0015');
+  insert into equipment (eq_id, mr_id)
+values('N_0046','mr_0016');
+  insert into equipment (eq_id, mr_id)
+values('N_0047','mr_0016');
+  insert into equipment (eq_id, mr_id)
+values('N_0048','mr_0016');
+  insert into equipment (eq_id, mr_id)
+values('V_0016','mr_0016');
+  insert into equipment (eq_id, mr_id)
+values('WB_0016','mr_0016');
+  insert into equipment (eq_id, mr_id)
+values('M_0016','mr_0016');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0049','mr_0017');
+  insert into equipment (eq_id, mr_id)
+values('N_0050','mr_0017');
+  insert into equipment (eq_id, mr_id)
+values('N_0051','mr_0017');
+  insert into equipment (eq_id, mr_id)
+values('V_0017','mr_0017');
+  insert into equipment (eq_id, mr_id)
+values('WB_0017','mr_0017');
+  insert into equipment (eq_id, mr_id)
+values('M_0017','mr_0017');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0052','mr_0018');
+  insert into equipment (eq_id, mr_id)
+values('N_0053','mr_0018');
+  insert into equipment (eq_id, mr_id)
+values('N_0054','mr_0018');
+  insert into equipment (eq_id, mr_id)
+values('V_0018','mr_0018');
+  insert into equipment (eq_id, mr_id)
+values('WB_0018','mr_0018');
+  insert into equipment (eq_id, mr_id)
+values('M_0018','mr_0018');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0055','mr_0019');
+  insert into equipment (eq_id, mr_id)
+values('N_0056','mr_0019');
+  insert into equipment (eq_id, mr_id)
+values('N_0057','mr_0019');
+  insert into equipment (eq_id, mr_id)
+values('V_0019','mr_0019');
+  insert into equipment (eq_id, mr_id)
+values('WB_0019','mr_0019');
+  insert into equipment (eq_id, mr_id)
+values('M_0019','mr_0019');
+
+  insert into equipment (eq_id, mr_id)
+values('N_0058','mr_0020');
+  insert into equipment (eq_id, mr_id)
+values('N_0059','mr_0020');
+  insert into equipment (eq_id, mr_id)
+values('N_0060','mr_0020');
+  insert into equipment (eq_id, mr_id)
+values('V_0020','mr_0020');
+  insert into equipment (eq_id, mr_id)
+values('WB_0020','mr_0020');
+  insert into equipment (eq_id, mr_id)
+values('M_0020','mr_0020');
+
+
+
+ 
+alter table reservation  modify res_state varchar(20);
+
+
+insert 
+into  reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+values ('res_0001', 'it0005', 'mr_0001', date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-25 16:00', '%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_1', 0, '내부회의', NULL, 10000, 0);
+
+ 
+
+  insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0002', 'it0006', 'mr_0002',date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-25 16:00', '%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_2', 0, '내부회의', NULL, 10000, 0);
+
+
+  insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0003', 'it0008', 'mr_0003',date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_3', 0, '내부회의', NULL, 10000, 0);
+
+ 
+
+  insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0004', 'it0009', 'mr_0004', date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_0', 0, '내부회의', NULL, 10000, 0);
+
+ 
+
+  insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0005', 'it0013', 'mr_0005',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_0', 0, '내부회의', NULL, 10000, 0);#교육장1차승인전
+
+ 
+
+ 
+
+  insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0006', 'it0014', 'mr_0006', date_format('2019-04-27 11:00','%Y-%m-%d %H:%i'), date_format('2019-04-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-04-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_5', 0, '내부회의', NULL, 10000, 0) ; # 단기예약 사용 완료
+ 
+
+  insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0007', 'it0016', 'mr_0007',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, '오기로 인한 취소 ', 'res_4', 0, '내부회의', NULL, 10000, 0) ; # 단기예약 예약 취소
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0008', 'it0017', 'mr_0008', date_format('2019-05-10 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_6', 0, '내부회의', NULL, 10000, 0) ; # 미사용
+
+ 
+
+  insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0009', 'it0019', 'mr_0009',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_1', 0, '내부회의', NULL, 10000, 0) ; # 대회의실 2차 승인 전
+
+ 
+
+  insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0010', 'it0020', 'mr_0010',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_1', 0, '내부회의', NULL, 10000, 0) ; # 교육장 2차 승인 전
+
+ 
+
+ 
+
+  insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0011', 'it0024', 'mr_0011',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-06-01 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_0', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 1차 승인 전
+
+ 
+
+insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0012', 'it0025', 'mr_0012',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-06-01 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_1', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 2차 승인 전
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0013', 'it0023', 'mr_0013',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-06-01 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_3', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 반려
+
+ 
+
+insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0014', 'it0024', 'mr_0014',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_2', 0, '내부회의', NULL, 10000, 0) ; # 대회의실 승인 완료
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0015', 'it0025', 'mr_0015',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_2', 0, '내부회의', NULL, 10000, 0) ; # 교육장 승인 완료
+
+ 
+
+ 
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0016', 'it0027', 'mr_0016',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-06-01 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_2', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 승인완료
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0017', 'it0028', 'mr_0017',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-06-01 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, '오기로 인한 취소 ', 'res_4', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 취소
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0018', 'it0029', 'mr_0018',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-06-01 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_5', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 사용종료
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0019', 'it0030', 'mr_0019',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_3', 0, '내부회의', NULL, 10000, 0) ; # 대회의실 승인 반려
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0020', 'it0031', 'mr_0020',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_3', 0, '내부회의', NULL, 10000, 0) ; # 교육장 승인 반려
+
+ 
+
+ 
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0021', 'it0032', 'mr_0016', date_format('2019-05-22 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-24 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_6', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 미사용
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0022', 'it0033', 'mr_0017',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-06-01 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' 오기로 인한 취소', 'res_4', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 취소
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0023', 'it0034', 'mr_0018',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-06-01 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_0', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 1차승인 전
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0024', 'it0035', 'mr_0019',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, '오기로 인한 취소 ', 'res_4', 0, '내부회의', NULL, 10000, 0) ; # 대회의실 승인 취소
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0025', 'it0036', 'mr_0020',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-05-27 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, '오기로 인한 취소 ', 'res_4', 0, '내부회의', NULL, 10000, 0) ; # 교육장 승인 취소
+
+ 
+
+ 
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0026', 'it0037', 'mr_0001', date_format('2019-05-28 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-28 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_1', 0, '내부회의', NULL, 10000, 0) ; # 단기예약 승인 전
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0027', 'it0038', 'mr_0002', date_format('2019-05-28 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-28 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_2', 0, '내부회의', NULL, 10000, 0) ; # 단기예약 승인 후
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0028', 'it0039', 'mr_0003',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-06-01 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_3', 0, '내부회의', NULL, 10000, 0) ; # 단기예약 반려
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0029', 'it0040', 'mr_0004', date_format('2019-05-20 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-20 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, '', 'res_5', 0, '내부회의', NULL, 10000, 0) ; # 대회의실 사용 종료
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0030', 'it0041', 'mr_0005', date_format('2019-05-20 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-20 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_5', 0, '내부회의', NULL, 10000, 0) ; # 교육장 사용종료
+
+ 
+
+ 
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0031', 'it0042', 'mr_0006', date_format('2019-05-28 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-28 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_1', 0, '내부회의', NULL, 10000, 0) ; # 단기예약 취소
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0032', 'it0043', 'mr_0007', date_format('2019-05-28 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-28 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_2', 0, '내부회의', NULL, 10000, 0) ; # 단기예약 사용종료
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0033', 'it0044', 'mr_0008',  date_format('2019-05-27 11:00', '%Y-%m-%d %H:%i'), date_format('2019-06-01 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_3', 0, '내부회의', NULL, 10000, 0) ; # 단기예약 미사용
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0034', 'it0030', 'mr_0009', date_format('2019-05-22 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-22 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, '', 'res_6', 0, '내부회의', NULL, 10000, 0) ; # 대회의실 미사용
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0035', 'it0031', 'mr_0010', date_format('2019-05-22 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-22 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_6', 0, '내부회의', NULL, 10000, 0) ; # 교육장 미사용
+
+ 
+
+ 
+
+ 
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0036', 'it0035', 'mr_0011', date_format('2019-05-28 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-29 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_0', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 1차승인전
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0037', 'it0036', 'mr_0012', date_format('2019-05-28 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-29 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_1', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 2차 승인전
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0038', 'it0037', 'mr_0013', date_format('2019-05-28 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-29 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_2', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 승인완료
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0039', 'it0038', 'mr_0014', date_format('2019-05-21 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-23 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, '', 'res_5', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 사용종료
+
+ 
+
+ insert into reservation (res_id, emp_id, mr_id, res_start_time, res_end_time, res_time, res_purpose, res_attend_cnt, res_add_request, res_state, res_snack, res_type, res_cancle, res_cost, res_outside)
+
+values ('res_0040', 'it0039', 'mr_0015', date_format('2019-05-28 11:00','%Y-%m-%d %H:%i'), date_format('2019-05-29 13:00','%Y-%m-%d %H:%i'), date_format('2019-05-10 16:00','%Y-%m-%d %H:%i'), '일반 회의', 5, ' ', 'res_3', 0, '내부회의', NULL, 10000, 0) ; # 장기예약 반려
+
+ 
+
+
+ 
+
+
+
+
+
+
+# ##################################### 예약 완료 ######################################-
+
+
+
+# ####################################-승인 목록 시작 #####################################
+
+
+
+
+ALTER TABLE  recognition  change dapt_head_id  dept_head_id varchar(30);
+
+    
+
+ALTER TABLE recognition MODIFY rec_accept_date date default null;
+
+insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0001', 'it0004', 'it0002', NULL, 'res_0001', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0002', 'it0004', 'it0002', date_format('2019-05-10 17:00','%Y-%m-%d %H:%i'), 'res_0002', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0003', 'it0007', 'it0002', NULL, 'res_0003', 'ㅁㄴㅇㄹ');
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0004', 'it0007', 'it0002', NULL, 'res_0004', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0005', 'it0012', 'it0003', NULL, 'res_0005', NULL);
+
+ 
+
+ 
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0006', 'it0012', 'it0002', NULL, 'res_0006', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0007', 'it0015', 'it0002', NULL, 'res_0007', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0008', 'it0015', 'it0002', NULL, 'res_0008', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0009', 'it0018', 'it0002', NULL, 'res_0009', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0010', 'it0018', 'it0023', NULL, 'res_0010', NULL);
+
+ 
+
+ 
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0011', 'it0023', 'it0002', NULL, 'res_0011', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0012', 'it0023', 'it0002', NULL, 'res_0012', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0013', 'it0023', 'it0002', NULL, 'res_0013', 'ㅁㄴㅇㄹ');
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0014', 'it0023', 'it0002', date_format('2019-05-10 17:00','%Y-%m-%d %H:%i'), 'res_0014', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0015', 'it0023', 'it0003', date_format('2019-05-10 17:00','%Y-%m-%d %H:%i'), 'res_0015', NULL);
+
+ 
+
+ 
+
+ 
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0016', 'it0026', 'it0002', date_format('2019-05-10 17:00','%Y-%m-%d %H:%i'), 'res_0016', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0017', 'it0029', 'it0002', NULL, 'res_0017', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0018', 'it0029', 'it0002', NULL, 'res_0018', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0019', 'it0029', 'it0002', NULL, 'res_0019', 'ㅁㄴㅇㄹ');
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0020', 'it0029', 'it0003', NULL, 'res_0020', 'ㅁㄴㅇㄹ');
+
+ 
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0021', 'it0032', 'it0002', NULL, 'res_0021', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0022', 'it0033', 'it0002', date_format('2019-05-10 17:00','%Y-%m-%d %H:%i'), 'res_0022', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0023', 'it0034', 'it0002', NULL, 'res_0023', 'ㅁㄴㅇㄹ');
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0024', 'it0034', 'it0002', NULL, 'res_0024', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0025', 'it0034', 'it0003', NULL, 'res_0025', NULL);
+
+ 
+
+ 
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0026', 'it0037', 'it0002', NULL, 'res_0026', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0027', 'it0037', 'it0002', NULL, 'res_0027', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0028', 'it0037', 'it0002', NULL, 'res_0028', 'ㅁㄴㅇㄹ');
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0029', 'it0040', 'it0002', NULL, 'res_0029', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0030', 'it0040', 'it0023', NULL, 'res_0030', NULL);
+
+ 
+
+ 
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0031', 'it0040', 'it0002', NULL, 'res_0031', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0032', 'it0043', 'it0002', NULL, 'res_0032', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0033', 'it0044', 'it0002', NULL, 'res_0033', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0034', 'it0029', 'it0002', NULL, 'res_0034', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0035', 'it0029', 'it0003', NULL, 'res_0035', NULL);
+
+ 
+
+ 
+
+ 
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0036', 'it0034', 'it0002', NULL, 'res_0036', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0037', 'it0034', 'it0002', NULL, 'res_0037', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0038', 'it0037', 'it0002', date_format('2019-05-10 17:00','%Y-%m-%d %H:%i'), 'res_0038', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0039', 'it0037', 'it0002', date_format('2019-05-10 17:00','%Y-%m-%d %H:%i'), 'res_0039', NULL);
+
+ insert into recognition(rec_id, dept_head_id, man_id, rec_accept_date, res_id, rec_refuse)
+
+values('rec_0040', 'it0037', 'it0003', NULL, 'res_0040', 'ㅁㄴㅇㄹ');
+
+
+
+# #################-insert into equipment_reservation 시작##############-
+
+insert
+into equipment_reservation(res_id, eq_id)
+values ('res_0001', 'N_0001');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0001', 'V_0001');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0001', 'M_0001');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0002', 'N_0004');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0002', 'V_0002');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0002', 'M_0002');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0003', 'N_0007');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0003', 'V_0003');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0003', 'M_0003');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0004', 'N_0010');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0004', 'V_0004');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0004', 'M_0004');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0005', 'N_0013');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0005', 'V_0005');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0005', 'M_0005');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0006', 'N_0016');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0006', 'V_0006');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0006', 'M_0006');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0007', 'N_0019');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0007', 'V_0007');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0007', 'M_0007');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0008', 'N_0022');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0008', 'V_0008');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0008', 'M_0008');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0009', 'N_0025');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0009', 'V_0009');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0009', 'M_0009');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0010', 'N_0028');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0010', 'V_0010');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0010', 'M_0010');
+
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0011', 'N_0031');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0011', 'V_0011');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0011', 'M_0011');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0012', 'N_0034');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0012', 'V_0012');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0012', 'M_0012');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0013', 'N_0037');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0013', 'V_0013');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0013', 'M_0013');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0014', 'N_0040');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0014', 'V_0014');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0014', 'M_0014');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0015', 'N_0043');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0015', 'V_0015');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0015', 'M_0015');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0016', 'N_0046');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0016', 'V_0016');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0016', 'M_0016');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0017', 'N_0049');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0017', 'V_0017');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0017', 'M_0017');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0018', 'N_0052');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0018', 'V_0018');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0018', 'M_0018');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0019', 'N_0055');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0019', 'V_0019');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0019', 'M_0019');
+
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0020', 'N_0058');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0020', 'V_0020');
+ insert into equipment_reservation(res_id, eq_id)
+values ('res_0020', 'M_0020');
+
+
+
+
+create table authorities(
+id varchar(30),
+authority varchar(30));
+
+alter table employee add enabled INT(1) default 1;
+
+
+insert into authorities values('it0001', 'ROLE_USER');
+insert into authorities values('it0002', 'ROLE_ADMIN');
+
+
+
+
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg1.jpg'
+where mr_id = 'mr_0001';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg2.jpg'
+where mr_id = 'mr_0002';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg3.jpg'
+where mr_id = 'mr_0003';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg4.jpg'
+where mr_id = 'mr_0004';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg5.jpg'
+where mr_id = 'mr_0005';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg6.jpg'
+where mr_id = 'mr_0006';
+
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg7.jpg'
+where mr_id = 'mr_0007';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg8.jpg'
+where mr_id = 'mr_0008';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg9.jpg'
+where mr_id = 'mr_0009';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg10.jpg'
+where mr_id = 'mr_0010';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg11.jpg'
+where mr_id = 'mr_0011';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg12.jpg'
+where mr_id = 'mr_0012';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg13.jpg'
+where mr_id = 'mr_0013';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg14.jpg'
+where mr_id = 'mr_0014';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg15.jpg'
+where mr_id = 'mr_0015';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg16.jpg'
+where mr_id = 'mr_0016';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg17.jpg'
+where mr_id = 'mr_0017';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg18.jpg'
+where mr_id = 'mr_0018';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg19.jpg'
+where mr_id = 'mr_0019';
+update meeting_room set
+mr_img = '/meeting/resources/img/mrImg20.jpg'
+where mr_id = 'mr_0020';
+
+
+
+
+update branch set
+br_img = '/meeting/resources/img/brImg1.jpg'
+where br_id = 'br_0001';
+
+update branch set
+br_img = '/meeting/resources/img/brImg2.jpg'
+where br_id = 'br_0002';
+
+update branch set
+br_img = '/meeting/resources/img/brImg3.jpg'
+where br_id = 'br_0003';
+
+update branch set
+br_img = '/meeting/resources/img/brImg4.jpg'
+where br_id = 'br_0004';
+
+
+
+
+
+
+ insert into attendee values  ('res_0001','it0005','att_type_0','dept_0002');
+ insert into attendee values  ('res_0008','it0005','att_type_0','dept_0002');
+ insert into attendee values ('res_0026','it0005','att_type_0','dept_0002');
+ insert into attendee values ('res_0029','it0005','att_type_0','dept_0002');
+ update department set dept_cost=40000 where dept_id='dept_0002';
+
+
+
+
+
+
+ALTER TABLE equipment ADD constraint FK_MEETING_ROOM_ID FOREIGN KEY (mr_id) REFERENCES meeting_room(mr_id) ON DELETE CASCADE;
+
+update department set dept_name = '유통-물류파트' where dept_id = 'dept_0010';
+update department set dept_name = '플랜트-ICT사업팀' where dept_id = 'dept_0006';
+
+# 20190624수정
+
+
+
+
+
+# 20190625~26 수정
+ALTER TABLE attendee ADD dept_cost INT(38);
+
+
+
+
+
