@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 게시판 네임스페이스(사용영역) 설정 -->
+<mapper namespace="com.gsitm.meeting.mappers.reservationMapper">
+	<select id="resList" resultType="com.gsitm.meeting.reservation.dto.ReservationDTO$ReservationTest" parameterType="string">
+		select r.res_id resId,e.EMP_NAME empName, date_format(res_start_time,'YYYY-MM-DD"T"HH24:MI:SS') resStartDate,date_format(res_end_time,'YYYY-MM-DD"T"HH24:MI:SS') resEndDate ,m.mr_name mrName,r.emp_id empId
+		from employee e ,reservation r,meeting_room m
+		where e.emp_id = r.emp_id
+		and m.mr_id = r.mr_id
+		and r.res_state='res_2'
+		and m.br_id = #{brId}
+	</select>
+	<select id="mrList" resultType="meetingRoomVO" parameterType="string">
+		select mr_name mrName,mr_id mrId from meeting_room where br_id=#{brId}
+	</select>
+	<insert id="writeReservation">
+		insert into reservation (RES_ID,EMP_ID, MR_ID, RES_START_TIME, RES_END_TIME,RES_TIME,RES_PURPOSE,RES_ATTEND_CNT,RES_ADD_REQUEST,RES_STATE,RES_SNACK,RES_TYPE,RES_CANCLE,RES_COST,RES_OUTSIDE)
+		values (#{resId}, #{empId}, #{meId}, #{resStartDate}, #{resEndDate},#{resDate},#{resPurpose},#{resAttendCnt},#{resAddRequest},#{resState},#{resSnack},#{resType},#{resCancle},#{resCost},#{resOutside})
+	</insert>
+	<select id="meetingRoomList" resultType="com.gsitm.meeting.room.dto.MeetingRoomDTO$MeetingRoomTest" parameterType="string">
+		select b.br_name brName,mr_name mrName, r.br_id brId,r.mr_id mrId, mr_limit mrLimit,b.BR_LOCATION brLocation, mr_area mrArea, mr_network mrNetwork, 
+		mr_type mrType, e.emp_name empName, mr_location mrLocation, mr_img mrImg, LISTAGG(eq.eq_id,',') WITHIN GROUP(ORDER BY r.mr_id) AS eqId 
+		from branch b, meeting_room r, employee e,equipment eq
+		where  b.BR_ID=r.br_id 
+		and r.emp_id = e.emp_id
+		and r.mr_id = eq.mr_id
+		and b.br_id=#{brId}
+		group by b.br_name,mr_name,r.br_id,r.mr_id,mr_limit,b.BR_LOCATION,mr_area,mr_network,mr_type,e.emp_name,mr_location,mr_img
+	</select>
+	<select id="mrReservationList" resultType="com.gsitm.meeting.reservation.dto.ReservationDTO$ReservationTest" parameterType="string">
+		select m.mr_id mrId,r.res_id resId,e.EMP_NAME empName, date_format(res_start_time,'YYYY-MM-DD"T"HH24:MI:SS') resStartDate,date_format(res_end_time,'YYYY-MM-DD"T"HH24:MI:SS') resEndDate ,m.mr_name mrName,r.emp_id empId
+		from employee e ,reservation r,meeting_room m
+		where e.emp_id = r.emp_id
+		and m.mr_id = r.mr_id
+		and r.res_state='res_2'
+		and r.mr_id=#{mrId}
+	</select>
+	<select id="meetingPeopleList" resultType="EmployeeVO">
+		SELECT EMP_ID empId, EMP_NAME empName FROM EMPLOYEE
+	</select>
+	<select id="resMostRecent" resultType="string">
+		select max(res_id) resId from reservation
+	</select>
+	<select id="recMostRecent" resultType="string">
+		select max(rec_id) recId from recognition
+	</select>
+	
+	<select id="branchList" resultType="BranchVO">
+		select br_name brName,br_id brId from branch
+	</select>
+	<select id="mrTypeList" resultType="MeetingRoomVO">
+		select distinct(mr_type) mrType from meeting_room 
+	</select>
+	<select id="mrLimitList" resultType="MeetingRoomVO">
+		select distinct(mr_limit) mrLimit from meeting_room 
+	</select>
+	<select id="equipList" resultType="equipmentVO" parameterType="string">
+		select substr(eq_id,1,1) eqId, mr_id mrId 
+		from equipment
+		where mr_id=#{mrId}
+	</select> 
+	<select id="search" resultType="com.gsitm.meeting.room.dto.MeetingRoomDTO$MeetingRoomTest" >
+		select mr.mr_id mrId,b.br_id brId,b.br_name brName,mr_name mrName,mr_limit mrLimit,b.BR_LOCATION brLocation,mr_area mrArea,mr_network mrNetwork,mr_type mrType,e.emp_name empName,mr_location mrLocation,mr_img mrImg, LISTAGG(eq.eq_id,',') WITHIN GROUP(ORDER BY r.mr_id) AS eqId 
+		from branch b, meeting_room mr, reservation r,employee e,equipment eq
+		
+		where mr.br_id = b.br_id
+		and mr.emp_id = e.emp_id
+		and r.mr_id = eq.mr_id
+		<if test="!brId.equals('')">
+			and b.br_id=#{brId}
+		</if>
+		<if test="!mrType.equals('')">
+			and mr.mr_type=#{mrType}
+		</if>
+		<if test="!mrLimit.equals('')">
+			and mr.mr_limit = #{mrLimit}
+		</if>
+		<if test="!resStartDate.equals('')">
+			and date_format(r.res_start_time)!=#{resStartDate}
+		</if>
+		group by mr.mr_id,b.br_id,b.br_name,mr_name,mr_limit,b.BR_LOCATION,mr_area,mr_network,mr_type,e.emp_name,mr_location,mr_img
+	</select>
+	<select id="empList" resultType="com.gsitm.meeting.users.dto.EmployeeDTO$empList">
+		select emp_id empId,emp_name empName,d.dept_name deptName
+        from employee e,department d
+        where e.dept_id=d.dept_id
+	</select>
+	<!-- 이후에 users 패키지로 옮길 것 -->
+	<delete id="cancelRes" parameterType="string">
+		delete from reservation
+		where res_id = #{resId}
+	</delete>
+	<!-- <select id="myListPeriod" resultType="com.gsitm.meeting.reservation.dto.ReservationDTO$ReservationTest" parameterType="string">
+		select res_id resId, reservation.emp_id empId, reservation.mr_id mrId, mr_name mrName, br_name brName, date_format(res_start_time) resStartTime,
+               date_format(res_end_time) resEndTime, date_format(res_time) resDate, res_purpose resPurpose, res_state resState, res_type resType, res_cost resCost 
+		from reservation, branch, meeting_room
+		where reservation.mr_id = meeting_room.mr_id 
+		and meeting_room.br_id = branch.br_id 
+		and #{resStartDate}>=date_format(SYSDATE-7,'YYYYMMDD')
+	</select> -->
+	<select id="mySchedule" resultType="com.gsitm.meeting.reservation.dto.ReservationDTO$ReservationTest" parameterType="string">
+		select a.res_id resId,date_format(res_time,'YYYY-MM-DD HH24:MI:SS') resDate ,
+        date_format(res_start_time,'YYYY-MM-DD HH24:MI:SS') resStartDate,
+        date_format(res_end_time,'YYYY-MM-DD HH24:MI:SS') resEndDate ,
+        r.res_state resState,
+        b.br_name brName,m.mr_name mrName
+        from reservation r,attendee a,meeting_room m, branch b
+        where r.res_id=a.res_id
+        and m.mr_id=r.mr_id
+        and b.br_id=m.br_id
+        and a.attend_id =#{empId}
+        and res_state='res_2'
+        and date_format(res_start_time,'YYYY-MM')= date_format((select sysdate()),'YYYY-MM')
+        and date_format(res_start_time,'YYYY-MM-DD"T"HH24:MI:SS')>date_format((select sysdate()),'YYYY-MM-DD"T"HH24:MI:SS')
+        order by date_format(res_start_time,'YYYY-MM-DD"T"HH24:MI:SS')
+        
+	</select>
+	
+	<select id="getPastReservation" parameterType="string" resultType="reservationVO">
+		select res_id resId, date_format(res_start_time,'YYYY-MM-DD HH24:MI') resStartDate, res_type resType, res_purpose resPurpose, res_snack resSnack, res_nw resNW from reservation where emp_id =#{empId}
+	</select>
+	<select id="getPastAttendee" resultType="attendeeVO" parameterType="string">
+		select res_id resId, attend_id attendId from attendee where res_id = #{resId}
+	</select>
+	<select id="getPastEquip" resultType="string" parameterType="string">
+		select eq_id eqId from equipment_reservation where res_id = #{resId}
+	</select>
+	
+	<select id="getResEquip" parameterType="string" resultType="equipmentVO">
+		select eq_id eqId from equipment where mr_id = #{mrId}
+	</select>
+	
+	<select id="getDeptIdByEmpId" resultType="string">
+		select dept_id deptId from employee where emp_id = #{empId}
+	</select>
+	
+	<select id="getCostByErId" resultType="int">
+		select mr_price from meeting_room where mr_id = #{mrId}
+	</select>
+	<select id="getDeptIdByDeptName" resultType="string">
+		select dept_id deptId from department where dept_name = #{deptName}
+	</select>
+	
+	<insert id="insertReservation" parameterType="reservationVO">
+		insert into reservation values(#{resId}, #{empId}, #{mrId}, to_date(#{resStartDate}, 'YYYY-MM-DD HH24:MI'), to_date(#{resEndDate}, 'YYYY-MM-DD HH24:MI'), 
+		(select sysdate()), #{resPurpose}, #{resAttendCnt}, #{resAddRequest},
+		#{resState}, #{resSnack}, #{resType}, #{resCancle}, #{resCost}, #{resOutside}, null)
+	</insert>
+	
+	<insert id="insertRecognition" parameterType="recognitionVO">
+		insert into recognition(rec_id, res_id) values(#{recId}, #{resId})
+	</insert>
+	
+	<insert id="insertAttendee" parameterType="attendeeVO">
+		insert into attendee values(#{resId}, #{attendId}, #{attendType}, #{deptId}, #{deptCost})
+	</insert>
+	
+	<insert id="insertResEquipment" parameterType="equipmentReservationVO">
+		insert into equipment_reservation values(#{resId}, #{eqId})
+	</insert>
+	<update id="minusResCost">
+		update department
+		set dept_cost = dept_cost-#{deptCost}
+		where dept_id=#{deptId}
+	</update>
+	<select id="getCostDeptId" resultType="attendeeVO">
+		select distinct(dept_id) deptId, dept_cost deptCost from attendee where res_id = #{resId}
+	</select>
+</mapper>
