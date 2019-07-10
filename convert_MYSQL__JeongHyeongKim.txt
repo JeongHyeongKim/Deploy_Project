@@ -1474,89 +1474,110 @@ alter table employee add enabled INT(1) default 1;
 
 insert into authorities values('it0001', 'ROLE_USER');
 insert into authorities values('it0002', 'ROLE_ADMIN');
+    insert into authorities values('it0008','ROLE_USER');
+    insert into authorities values('it0009','ROLE_USER');
+    insert into authorities values('it0013','ROLE_USER');
+    insert into authorities values('it0014','ROLE_USER');
+    insert into authorities values('it0016','ROLE_USER');
+    insert into authorities values('it0017','ROLE_USER');
+    insert into authorities values('it0019','ROLE_USER');
+    insert into authorities values('it0020','ROLE_USER');
+    insert into authorities values('it0024','ROLE_USER');
+    insert into authorities values('it0025','ROLE_USER');
+    insert into authorities values('it0027','ROLE_USER');
+    insert into authorities values('it0028','ROLE_USER');
+    insert into authorities values('it0030','ROLE_USER');
+    insert into authorities values('it0031','ROLE_USER');
+    insert into authorities values('it0033','ROLE_USER');
+    insert into authorities values('it0035','ROLE_USER');
+    insert into authorities values('it0036','ROLE_USER');
+    insert into authorities values('it0038','ROLE_USER');
+    insert into authorities values('it0039','ROLE_USER');
+    insert into authorities values('it0041','ROLE_USER');
+    insert into authorities values('it0042','ROLE_USER');
 
 
 
 
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg1.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg1.jpg'
 where mr_id = 'mr_0001';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg2.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg2.jpg'
 where mr_id = 'mr_0002';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg3.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg3.jpg'
 where mr_id = 'mr_0003';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg4.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg4.jpg'
 where mr_id = 'mr_0004';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg5.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg5.jpg'
 where mr_id = 'mr_0005';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg6.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg6.jpg'
 where mr_id = 'mr_0006';
 
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg7.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg7.jpg'
 where mr_id = 'mr_0007';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg8.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg8.jpg'
 where mr_id = 'mr_0008';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg9.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg9.jpg'
 where mr_id = 'mr_0009';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg10.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg10.jpg'
 where mr_id = 'mr_0010';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg11.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg11.jpg'
 where mr_id = 'mr_0011';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg12.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg12.jpg'
 where mr_id = 'mr_0012';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg13.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg13.jpg'
 where mr_id = 'mr_0013';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg14.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg14.jpg'
 where mr_id = 'mr_0014';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg15.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg15.jpg'
 where mr_id = 'mr_0015';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg16.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg16.jpg'
 where mr_id = 'mr_0016';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg17.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg17.jpg'
 where mr_id = 'mr_0017';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg18.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg18.jpg'
 where mr_id = 'mr_0018';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg19.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg19.jpg'
 where mr_id = 'mr_0019';
 update meeting_room set
-mr_img = '/meeting/resources/img/mrImg20.jpg'
+mr_img = '/meeting/resources/img/meetingroom/mrImg20.jpg'
 where mr_id = 'mr_0020';
 
 
 
 
 update branch set
-br_img = '/meeting/resources/img/brImg1.jpg'
+br_img = '/meeting/resources/img/branch/brImg1.jpg'
 where br_id = 'br_0001';
 
 update branch set
-br_img = '/meeting/resources/img/brImg2.jpg'
+br_img = '/meeting/resources/img/branch/brImg2.jpg'
 where br_id = 'br_0002';
 
 update branch set
-br_img = '/meeting/resources/img/brImg3.jpg'
+br_img = '/meeting/resources/img/branch/brImg3.jpg'
 where br_id = 'br_0003';
 
 update branch set
-br_img = '/meeting/resources/img/brImg4.jpg'
+br_img = '/meeting/resources/img/branch/brImg4.jpg'
 where br_id = 'br_0004';
 
 
