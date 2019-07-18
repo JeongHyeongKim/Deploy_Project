@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="noticeMapper">
+
+   <resultMap id="noticeResult" type="notice">
+
+      <result column="notice_no" property="noticeNo" />
+
+      <result column="notice_subject" property="noticeSubject" />
+
+      <result column="notice_content" property="noticeContent" />
+
+      <result column="writer_emp_no" property="writerEmpNo" />   
+
+	  <result column="notice_date" property="noticeDate" />   
+	  
+   </resultMap>
+
+
+	<select id="selectAll" resultMap="noticeResult">
+        <!-- SELECT * FROM notice ORDER BY notice_no DESC -->
+        <!--  SELECT TO_CHAR(notice_date, 'YYYY/MM/DD HH24:MI:SS') notice_date ,notice.*,employee.emp_name writer_emp_name, employee.emp_position writer_emp_position FROM notice,employee WHERE notice.writer_emp_no=employee.emp_no ORDER BY notice_no DESC
+ --> 
+        SELECT DATE_FORMAT(notice_date,  '%Y-%m-%d') notice_date ,
+        notice.*,employee.emp_name writer_emp_name, employee.emp_position writer_emp_position 
+        FROM notice,employee 
+        WHERE notice.writer_emp_no=employee.emp_no 
+        ORDER BY notice_no DESC
+        
+	</select>
+
+ 	<insert id="insert">
+ 	<!-- 
+		Insert into MBMS.notice (notice_no, notice_subject, notice_content, writer_emp_no, notice_date)
+		values (notice_SEQ.NEXTVAL , #{noticeSubject},  #{noticeContent} ,  #{writerEmpNo} , SYSDATE)
+	  -->
+		Insert into notice (notice_no, notice_subject, notice_content, writer_emp_no, notice_date)
+		values ((select *from (select max(notice_no)+1 from notice) next),
+		#{noticeSubject},  #{noticeContent} ,  #{writerEmpNo} , DATE_FORMAT(now(), '%Y%m%d'))
+	</insert>
+
+
+	<select id="selectByNoticeNo" resultMap="noticeResult">
+	
+	<!-- 
+		SELECT * 
+		FROM (SELECT notice.*,employee.emp_name writer_emp_name, employee.emp_position writer_emp_position FROM notice,employee WHERE notice.writer_emp_no=employee.emp_no) 
+		WHERE notice_no=#{noticeNo}
+	  -->
+	  
+		SELECT * 
+		FROM (SELECT notice.*,employee.emp_name writer_emp_name, employee.emp_position writer_emp_position FROM notice,employee WHERE notice.writer_emp_no=employee.emp_no) A 
+		WHERE notice_no=#{noticeNo}
+		
+	</select>
+
+
+	<delete id="delete">
+		DELETE FROM notice WHERE notice_no = #{noticeNo}
+	</delete>
+
+
+	<update id="update">
+		UPDATE notice SET
+			notice_subject=#{noticeSubject},
+			notice_content=#{noticeContent},
+			writer_emp_no=#{writerEmpNo}
+		WHERE notice_no = #{noticeNo}
+	</update>
+</mapper>

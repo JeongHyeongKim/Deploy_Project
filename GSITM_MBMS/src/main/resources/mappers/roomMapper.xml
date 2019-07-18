@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="roomMapper">
+	<resultMap type="room" id="RoomDTO">
+		<result column="room_no" property="roomNo"/>
+		<result column="build_no" property="buildNo"/>
+		<result column="room_name" property="roomName"/>
+		<result column="room_space" property="roomSpace"/>
+		<result column="room_num_emp" property="roomNumEmp"/>
+		<result column="mgr_emp_no" property="mgrEmpNo"/>
+		<result column="room_img" property="roomImg"/>
+		<result column="room_price" property="roomPrice"/>
+		<result column="network_yn" property="networkYn"/>
+		<result column="room_floor" property="roomFloor"/>
+		<result column="room_type" property="roomType"/>
+	</resultMap>
+	
+	<!-- RoomDTO와 EquipemntDTO 조인 -->
+   <resultMap type="room" id="roomWithEquipments" extends="RoomDTO">
+		<collection property="equipments" ofType="equipment" resultMap="equipmentMapper.Equipment"></collection>
+   </resultMap>
+   
+   <!-- RoomDTO와 BuildingDTO 조인 -->
+   <resultMap type="room" id="roomWithDepartment" extends="RoomDTO">
+   		<association property="buildingDTO" column="build_no" javaType="building"  resultMap="buildingMapper.Building"></association>
+   </resultMap>
+	
+	
+	<insert id="insertRoom" parameterType="Room">
+		insert into room values((select *from (select max(room_no)+1 from room) next),
+								#{buildNo},
+								#{roomName},
+								#{roomSpace},
+								#{roomNumEmp},
+								#{mgrEmpNo},
+								#{roomImg},
+								#{roomPrice},
+								#{networkYn},
+								#{roomFloor},
+								#{roomType})
+
+		<selectKey keyProperty="roomNo" resultType="Integer" order="AFTER"> 
+			SELECT Max(Room_no) FROM room 
+		</selectKey>
+	</insert>
+	
+
+	<select id="selectAllRoom" resultMap="roomWithEquipments">
+		<!-- 
+		SELECT r.*, e.* FROM room r, room_equipment e
+		WHERE r.room_no = e.room_no (+)
+		-->
+		
+		SELECT r.*, e.* FROM room r, room_equipment e
+		WHERE r.room_no = e.room_no
+		  
+	</select>
+	
+	<select id="selectRoomBySearch" parameterType="java.util.Map" resultMap="roomWithEquipments">
+		<!-- 
+		select r.*, e.* from room r, room_equipment e 
+		where r.room_no = e.room_no (+)
+			AND build_no like '%${buildNo}%' and room_type like '%${roomType}%'
+		-->
+		select r.*, e.* from room r, room_equipment e 
+		where r.room_no = e.room_no
+			AND build_no like '%${buildNo}%' and room_type like '%${roomType}%'
+		
+	</select>
+	
+	<select id="selectOneRoomByRoomNo" parameterType="int" resultMap="RoomDTO">
+		select * from room
+		where room_no = #{roomNo}
+	</select>
+	
+	<select id="selectAvailableRoom" parameterType="java.util.Map" resultMap="roomWithEquipments">
+		<!-- 
+		SELECT r.*, e.* FROM room r, building b, room_equipment e
+			WHERE r.build_no = b.build_no
+				AND r.room_no = e.room_no (+)
+			    AND lower(r.network_yn) = lower('Y')
+			    AND r.room_type like '%${roomTypeSelect}%'
+			    <if test="!buildingSelect.equals('')">
+			    AND b.build_no = #{buildingSelect}
+			    </if>
+			    AND r.room_num_emp >= #{empCount}
+			    AND r.room_no NOT IN (
+			        SELECT DISTINCT r.room_no FROM reserve_history rh, building b, room r
+			        WHERE rh.room_no = r.room_no
+			            AND r.build_no = b.build_no
+			            AND (
+			            	rh.start_date BETWEEN TO_DATE(#{startDate}, 'yyyy/mm/dd hh24:mi') AND TO_DATE(#{endDate}, 'yyyy/mm/dd hh24:mi')
+			            	OR rh.end_date BETWEEN TO_DATE(#{startDate}, 'yyyy/mm/dd hh24:mi') AND TO_DATE(#{endDate}, 'yyyy/mm/dd hh24:mi')
+			            )
+			    )
+		-->
+			SELECT r.*, e.* FROM room r, building b, room_equipment e
+			WHERE r.build_no = b.build_no
+				AND e.room_no = r.room_no
+			    AND lower(r.network_yn) = lower('Y')
+			    AND r.room_type like '%${roomTypeSelect}%'
+			    <if test="!buildingSelect.equals('')">
+			    AND b.build_no = #{buildingSelect}
+			    </if>
+			    AND r.room_num_emp >= #{empCount}
+			    AND r.room_no NOT IN (
+			        SELECT DISTINCT r.room_no FROM reserve_history rh, building b, room r
+			        WHERE rh.room_no = r.room_no
+			            AND r.build_no = b.build_no
+			            AND (
+			            	rh.start_date BETWEEN DATE_FORMAT(#{startDate}, '%Y-%m-%d %T') AND DATE_FORMAT(#{endDate}, '%Y-%m-%d %T')
+			            	OR rh.end_date BETWEEN DATE_FORMAT(#{startDate}, '%Y-%m-%d %T') AND DATE_FORMAT(#{endDate}, '%Y-%m-%d %T')
+			            )
+			    )
+	</select>
+	
+	<!-- Room이랑 Equip Join -->
+	<select id="selectAllWithEquipments" resultMap="roomWithEquipments">
+   		SELECT r.*, e.* FROM room r LEFT OUTER JOIN room_equipment e ON r.room_no = e.room_no 
+   		ORDER BY r.room_no    
+   </select>
+   
+   <delete id="deleteRoom" parameterType="int">
+   		delete from room where room_no=#{roomNo}
+   </delete>
+   
+   <update id="updateRoom" parameterType="room">
+   		update room set room_name=#{roomName}
+   					, room_space=#{roomSpace}
+   					, mgr_Emp_No=#{mgrEmpNo}
+   					, room_img=#{roomImg}
+   					, build_no=#{buildNo}
+   					, room_num_emp=#{roomNumEmp}
+   					, room_price=#{roomPrice}
+   					, network_yn=#{networkYn}
+   					, room_floor=#{roomFloor}
+   					, room_type=#{roomType}
+   					where room_no = #{roomNo}
+   </update>
+   
+   <!-- 민기 관리자사번으로 방 찾기  -->
+   <select id="selectRoomByMgrEmpNo" resultMap="RoomDTO">
+		select * from room where MGR_EMP_NO =#{empNo}
+	</select>
+	
+	<select id="selectGetMaxId" resultType="Integer">
+		select max(room_no) from room
+	</select>
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="employeeMapper">
+	<!-- Employee 테이블 매핑 -->
+	<resultMap type="employee" id="EmployeeDTO">
+		<id column="emp_no" property="empNo"/>
+		<result column="emp_pw" property="empPw"/>
+		<result column="emp_name" property="empName"/>
+		<result column="emp_position" property="empPosition"/>
+		<result column="emp_email" property="empEmail"/>
+		<result column="cell_phone" property="cellPhone"/>
+		<result column="office_phone" property="officePhone"/>
+		<result column="dept_no" property="deptNo"/>
+		<result column="permission_yn" property="permissionYn"/>
+	</resultMap>
+	
+	<!-- EmployeeDTO와 DepartmentDTO 조인 -->
+   <resultMap type="employee" id="employeeWithDepartment" extends="EmployeeDTO">
+		<association property="dept" column="dept_no" javaType="department" resultMap="departmentMapper.DepartmentDTO"></association>
+   </resultMap>
+	
+	<!-- 한명의 사원정보 조회 -->
+	<select id="getEmployee" parameterType="String" resultMap="EmployeeDTO">
+		select * from employee where emp_no=#{emp_no}
+	</select>
+	
+	<!-- 로그인 -->
+	<select id="login" parameterType="java.util.Map" resultMap="EmployeeDTO">
+		select * from employee where emp_no=#{emp_no} and emp_pw=#{emp_pw}
+	</select> 
+	 
+	<!-- 민기 : 회의실 관리자 명단 뽑아오기 -->
+	<select id="selectAllAdmin" resultMap="EmployeeDTO">
+        SELECT employee.* FROM employee, room where employee.emp_no = room.mgr_emp_no
+	</select>
+	
+	<!-- 원빈 : 담당자 명단 뽑아오기 -->
+	<select id="getEmployeeList"  resultType="map">
+		<![CDATA[
+			SELECT 
+				e.emp_no AS empNo,
+				e.emp_name AS empName,
+				e.emp_position AS empPosition,
+				e.emp_email AS empEmail,
+				e.cell_phone AS empCellphone,
+				e.office_phone AS empOfficephone,
+				d.dept_name AS dept_name,
+				d.dept_no AS deptNo
+			    
+			FROM  department d, employee e
+			WHERE d.dept_no = e.dept_no
+		]]>	
+	</select>
+	
+	<!-- 성윤 : 전체 직원 목록 조회 -->
+	<select id="selectAllEmployee" resultMap="employeeWithDepartment">
+		SELECT * FROM employee e JOIN building b ON e.dept_no = b.dept_no
+	</select>
+	
+	<!-- 성윤: 상위결재자 사원정보 조회 -->
+	<select id="getDeptManagerEmpNo" parameterType="string" resultMap="EmployeeDTO">
+		select * from employee
+		where emp_no = (
+			select boss_no from department  
+			where dept_no =  
+			( select dept_no from employee where emp_no = #{empNo} )
+		)
+	</select>
+</mapper>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="equipmentMapper"> 
+	<!-- EquipmentDTO 컬럼명 매핑 -->
+   <resultMap type="equipment" id="Equipment">
+      <result column="room_no" property="roomNo"/>
+      <result column="eq_no" property="eqNo"/>
+      <result column="eq_name" property="eqName"/>
+      <result column="eq_count" property="eqCount"/>
+   </resultMap>
+   
+   <resultMap type="equipment" id="EquipmentwithRoom">
+      <result column="room_no" property="roomNo"/>
+      <result column="eq_no" property="eqNo"/>
+      <result column="eq_name" property="eqName"/>
+      <result column="eq_count" property="eqCount"/>
+   </resultMap>
+   
+   
+   <insert  id="equipmentInsert"  parameterType="Equipment">
+   		insert into room_equipment values(#{roomNo},
+   		(select *from (select max(eq_no)+1 from room_equipment) next),
+   		#{eqName},#{eqCount})
+   		
+   </insert>
+   
+   <select id="equipmentDistinctSelect" resultMap="Equipment">
+   		select distinct eq_name from room_equipment
+   </select>
+   
+   <select id="equipmentSelectAll" resultMap="Equipment">
+   		select * from room_equipment
+   </select>
+   
+   <!-- 비품에서 회의실 이름 가져오기 -->
+	<select id="equipmentSelectAllwithRoom"  resultType="map">	
+			SELECT 
+				e.room_no AS roomNo,
+				e.eq_no AS eqNo,
+				e.eq_name AS eqName,
+				e.eq_count AS eqCount,
+				r.room_name AS roomName,
+				b.build_name AS buildName,
+				b.build_no AS buildNo
+			    
+			FROM  room_equipment e, room r, building b
+			WHERE r.room_no = e.room_no	and r.build_no = b.build_no 
+	</select>
+	
+	<!-- 비품삭제 -->
+	<delete id="equipmentDelete" parameterType="int">
+   		DELETE FROM room_equipment WHERE eq_no = #{eqNo}
+   </delete>
+   
+   <update id="equipmentUpdate" parameterType="Equipment">
+   		UPDATE room_equipment SET eq_name = #{eqName},eq_count=#{eqCount} WHERE eq_no=#{eqNo}
+   </update>
+	
+	<select id="selectOneByRoomNo" parameterType="int" resultType="equipment">
+		SELECT * FROM room_equipment WHERE room_no = #{roomNo}
+	</select>
+</mapper>
+   

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="buildingMapper">
+   <!-- BuildingDTO 컬럼명 매핑 -->
+   <resultMap type="building" id="Building">
+      <result column="build_no" property="buildNo"/>
+      <result column="build_name" property="buildName"/>
+      <result column="build_addr" property="buildAddr"/>
+      <result column="build_post" property="buildPost"/>
+   </resultMap>
+  
+	<!-- BuildingDTO와 RoomDTO 조인 -->
+   <resultMap type="building" id="buildingWithRooms" extends="Building">
+		<collection property="rooms" ofType="room" resultMap="roomMapper.RoomDTO"></collection>
+   </resultMap>
+   
+   <select id="allBuilding" resultMap="Building">
+      select * from building 
+   </select>
+   
+   <insert  id="buildingInsert"  parameterType="Building">
+   		<!-- insert into building values (building_seq.nextval, #{buildName}, #{buildAddr}, #{buildPost})   -->
+   		Insert into building values ((select *from (select max(build_no)+1 from building) next),
+   		#{buildName}, #{buildAddr}, #{buildPost})
+   </insert>
+   
+   <delete id="buildingDelete" parameterType="int">
+   		DELETE FROM building WHERE build_no = #{buildNo}
+   </delete>
+   
+   <select id="buildingSelect" parameterType="int" resultMap="Building">
+   		select * from building where build_no = #{buildNo}
+   </select>
+   
+    <update id="buildingUpdate" parameterType="Building">
+   		UPDATE building SET build_name = #{buildName},build_Addr=#{buildAddr},build_post=#{buildPost} WHERE build_no=#{buildNo}
+   </update>
+   
+   <select id="selectAllWithRooms" resultMap="buildingWithRooms">
+   		SELECT b.*, r.* FROM building b LEFT OUTER JOIN room r ON b.build_no = r.build_no 
+   		ORDER BY b.build_no    
+   </select>
+</mapper>

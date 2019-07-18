@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="statsMapper">
+	<resultMap type="historyForStats" id="HistoryForStatsDTO">
+		<result column="reserve_no" property="reserveNo"/>
+		<result column="room_no" property="roomNo"/>
+		<result column="reserve_emp_no" property="reserveEmpNo"/>
+		<result column="start_date" property="startDate"/>
+		<result column="end_date" property="endDate"/>
+		<result column="approval1_yn" property="approval1Yn"/>
+		<result column="approval1_emp_no" property="approval1EmpNo"/>
+		<result column="approval1_date" property="approval1Date"/>
+		<result column="approval2_yn" property="approval2Yn"/>
+		<result column="approval2_emp_no" property="approval2EmpNo"/>
+		<result column="approval2_date" property="approval2Date"/>
+		<result column="payment_yn" property="paymentYn"/>
+		<result column="payment_date" property="paymentDate"/>
+		<result column="reserve_date" property="reserveDate"/>
+		<result column="reserve_price" property="reservePrice"/>
+		<result column="purpose" property="purpose"/>
+		<result column="category" property="category"/>
+		<result column="priority" property="priority"/>
+		<result column="emp_count" property="empCount"/>
+		<result column="snack_yn" property="snackYn"/>
+		<result column="reason" property="reason"/>
+		<result column="title" property="title"/>
+		
+		
+		<result column="build_name" property="buildName"/>
+		<result column="dept_name" property="deptName"/>
+		<result column="room_type" property="roomType"/>
+		<result column="emp_name" property="empName"/>
+		<result column="emp_position" property="empPosition"/>
+		<result column="room_name" property="roomName"/>
+		
+	</resultMap>
+	
+	
+	<resultMap type="frequency" id="FrequencyDTO">
+		<result column="room_no" property="roomNo"/>
+		<result column="countint" property="countint"/>
+		<result column="room_name" property="roomName"/>
+
+		
+	</resultMap>
+	
+	
+ 	<!--예약내역 전체 조회 -->
+<!--	<select id="selectAllHistory" parameterType="String" resultMap="HistoryForStatsDTO">
+		SELECT * FROM (((reserve_history INNER JOIN room ON reserve_history.room_no=room.room_no) INNER JOIN building ON room.build_no = building.build_no) INNER JOIN employee ON reserve_history.reserve_emp_no=employee.emp_no) INNER JOIN department ON employee.dept_no = department.dept_no
+
+	</select> -->
+	
+
+
+   <!--필터링해서 기록 리스트로 뽑기 -->
+	<select id="selectFilterHistory" parameterType="map" resultMap="HistoryForStatsDTO">
+   	 	SELECT *
+		FROM (((reserve_history INNER JOIN room ON reserve_history.room_no=room.room_no) INNER JOIN building ON room.build_no = building.build_no) INNER JOIN employee ON reserve_history.reserve_emp_no=employee.emp_no) INNER JOIN department ON employee.dept_no = department.dept_no
+
+		<trim prefix="where" prefixOverrides="AND | OR">
+			<if test="buildingSelect!='전체'">
+				AND build_name=#{buildingSelect}
+			</if>
+			<if test="deptSelect!='전체'">
+				AND dept_name = #{deptSelect}
+			</if>	
+			<if test="roomTypeSelect!='전체'">
+				AND room_type =#{roomTypeSelect}
+			</if>
+			
+			<if test="timeSelectStart!='전체'">
+				<!-- 
+				AND     ((TO_DATE (#{timeSelectStart})<![CDATA[<]]>= start_date AND start_date <![CDATA[<]]>= TO_DATE (#{timeSelectEnd}))
+                 		OR 
+                		(TO_DATE (#{timeSelectStart})<![CDATA[<]]>= end_date AND end_date <![CDATA[<]]>= TO_DATE (#{timeSelectEnd})))
+                  -->		
+                
+                AND     ((date_format(#{timeSelectStart}, '%Y/%m/%d')<![CDATA[<]]>= start_date AND start_date <![CDATA[<]]>= date_format(#{timeSelectEnd}, '%Y/%m/%d'))
+                 		OR 
+                		(date_format(#{timeSelectStart}, '%Y/%m/%d')<![CDATA[<]]>= end_date AND end_date <![CDATA[<]]>= date_format(#{timeSelectEnd}, '%Y/%m/%d')))
+            </if>
+			
+   		</trim>
+   		 ORDER BY reserve_no DESC
+   </select>
+   
+   
+	<!--그래프에 넣을 빈도분석통계 뽑기 -->
+	    <select id="selectFrequency" parameterType="map" resultMap="FrequencyDTO">
+	SELECT DISTINCT room_no, countint, alltable.room_name
+	FROM   
+	    (SELECT room_name, SUM(days) countint FROM
+	        (SELECT room_name,reserve_history.reserve_no, ROUND(end_date-start_date+1) days
+	        FROM   (((reserve_history
+	                  inner join room ON reserve_history.room_no = room.room_no)
+	                 inner join building ON room.build_no = building.build_no) 
+	                inner join employee ON reserve_history.reserve_emp_no = employee.emp_no)
+	               inner join department ON employee.dept_no = department.dept_no
+			<trim prefix="where" prefixOverrides="AND | OR">
+				approval2_yn=1
+				<if test="buildingSelect!='전체'">
+					AND build_name=#{buildingSelect}
+				</if>
+				<if test="deptSelect!='전체'">
+					AND dept_name = #{deptSelect}
+				</if>	
+				<if test="roomTypeSelect!='전체'">
+					AND room_type =#{roomTypeSelect}
+				</if>
+				<if test="timeSelectStart!='전체'">
+					AND     ((date_format(#{timeSelectStart}, '%Y/%m/%d')<![CDATA[<]]>= start_date AND start_date <![CDATA[<]]>= date_format(#{timeSelectEnd}, '%Y/%m/%d'))
+	                 		OR 
+	                		(date_format(#{timeSelectStart}, '%Y/%m/%d')<![CDATA[<]]>= end_date AND end_date <![CDATA[<]]>= date_format(#{timeSelectEnd}, '%Y/%m/%d')))
+	            </if>
+	            
+	        </trim>
+			) a GROUP BY room_name) counttable
+				
+			RIGHT OUTER JOIN
+
+			(
+			SELECT room.room_no, room.room_name
+				FROM (((reserve_history INNER JOIN room ON reserve_history.room_no=room.room_no) 
+				INNER JOIN building ON room.build_no = building.build_no) 
+				INNER JOIN employee ON reserve_history.reserve_emp_no=employee.emp_no) 
+				INNER JOIN department ON employee.dept_no = department.dept_no
+				
+			<trim prefix="where" prefixOverrides="AND | OR">
+				approval2_yn=1
+				<if test="timeSelectStart!='전체'">
+					AND     ((date_format(#{timeSelectStart}, '%Y/%m/%d')<![CDATA[<]]>= start_date AND start_date <![CDATA[<]]>= date_format(#{timeSelectEnd}, '%Y/%m/%d'))
+	                 		OR 
+	                		(date_format(#{timeSelectStart}, '%Y/%m/%d')<![CDATA[<]]>= end_date AND end_date <![CDATA[<]]>= date_format(#{timeSelectEnd}, '%Y/%m/%d')))
+	            </if>
+	            
+	         </trim>
+	         ) alltable
+				
+			ON counttable.room_name=alltable.room_name
+			ORDER BY room_no
+	   
+	   </select>  
+	</mapper>

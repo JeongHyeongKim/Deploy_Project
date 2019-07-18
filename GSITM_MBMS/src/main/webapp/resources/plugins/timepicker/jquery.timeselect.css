@@ -1,0 +1,50 @@
+.clr{
+    clear:both;
+}
+.timeselect{
+    display: inline-block;
+}
+.timeselect input[type=text]{
+    padding:3px 5px;
+}
+.timeselect ul{
+	position: absolute;
+    border: 1px solid #c6c6c6;
+    background-color:white;
+    margin:0;
+    padding:0;
+    width: 270px;
+    z-index: 10;
+}
+.timeselect ul li{
+    cursor: pointer;
+    width: 70px;
+    float: left;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    padding:10px;
+    text-align: center;
+}
+.timeselect ul li.separator{
+    clear:both;
+    width:100%;
+    padding:10px 0;
+    margin:0;
+    text-align:center;
+    font-weight:bold;
+}
+
+.timeselect ul li.separator:hover{
+    background-color: transparent;
+}
+.timeselect ul li:hover{
+    background-color: #c6c6c6;
+}
+.timeselect ul li.disable {
+	color : #c6c6c6;
+}
+.timeselect ul li.disable:hover {
+	background-color: white;
+	cursor: not-allowed;
+}

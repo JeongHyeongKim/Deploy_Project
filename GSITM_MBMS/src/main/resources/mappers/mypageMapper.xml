@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mypageMapper">  
+<resultMap type="mypage" id="MypageDTO">
+		<result column="reserve_no" property="reserveNo"/>
+		<result column="room_no" property="roomNo"/>
+		<result column="reserve_emp_no" property="reserveEmpNo"/>
+		<result column="start_date" property="startDate"/>
+		<result column="end_date" property="endDate"/>
+		<result column="approval1_yn" property="approval1Yn"/>
+		<result column="approval1_emp_no" property="approval1EmpNo"/>
+		<result column="approval1_date" property="approval1Date"/>
+		<result column="approval2_yn" property="approval2Yn"/>
+		<result column="approval2_emp_no" property="approval2EmpNo"/>
+		<result column="approval2_date" property="approval2Date"/>
+		<result column="payment_yn" property="paymentYn"/>
+		<result column="payment_date" property="paymentDate"/>
+		<result column="reserve_date" property="reserveDate"/>
+		<result column="reserve_price" property="reservePrice"/>
+		<result column="purpose" property="purpose"/>
+		<result column="category" property="category"/>
+		<result column="priority" property="priority"/>
+		<result column="emp_count" property="empCount"/>
+		<result column="snack_yn" property="snackYn"/>
+		
+		<result column="emp_name" property="empName"/>
+		<result column="room_name" property="roomName"/>
+		<result column="build_name" property="buildName"/>
+		<result column="dept_name" property="deptName"/>
+		<result column="emp_position" property="empPosition"/>
+		<result column="emp_no" property="empNo"/>
+		
+		<result column="title" property="title"/>
+		<result column="reason" property="reason"/>
+		
+	</resultMap>
+   
+	<!--  사용자 예약현황에서 전체 조회   -->
+	<select id="selectAllStatus" resultMap="MypageDTO">
+	<!--       
+		SELECT reserve_history.*, room.room_name, building.build_name
+			FROM reserve_history, room, building
+			WHERE TO_CHAR(START_DATE, 'YYYYMMDD') >= (SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') FROM DUAL) 
+				AND reserve_history.room_NO = room.room_NO
+				AND room.BUILD_NO = building.BUILD_NO
+				AND reserve_history.RESERVE_EMP_NO = #{empNo}
+	  -->  
+	  	SELECT reserve_history.*, room.room_name, building.build_name
+			FROM reserve_history, room, building
+			WHERE DATE_FORMAT(START_DATE, '%Y-%m-%d') >= (SELECT DATE_FORMAT( now() , '%Y-%m-%d')) 
+				AND reserve_history.room_NO = room.room_NO
+				AND room.BUILD_NO = building.BUILD_NO
+				AND reserve_history.RESERVE_EMP_NO = #{empNo}
+								
+    </select>
+     
+    <!--  사용자 예약이력에서 전체 조회   -->
+    <select id="selectAllHistory" resultMap="MypageDTO">
+		SELECT reserve_history.*, employee.EMP_NAME, room.room_name
+			FROM reserve_history, employee, room, building
+			WHERE reserve_history.RESERVE_EMP_NO = employee.EMP_NO 
+				AND reserve_history.room_NO = room.room_NO
+				AND room.BUILD_NO = building.BUILD_NO
+				AND reserve_history.RESERVE_EMP_NO = #{empNo}
+	</select>
+  
+ 	<!--  사용자 예약현황에서 예약 삭제   -->
+	<delete id="delete">
+   		DELETE FROM reserve_history WHERE RESERVE_NO = #{reserveNo}
+   	</delete>
+  
+  	<!--  사용자 예약현황에서 날짜 조건 검색   -->
+   	<select id="selectStatusFiltering" parameterType="map" resultMap="MypageDTO">
+   	<!--
+		  SELECT reserve_history.*, room.room_name, building.build_name 
+			FROM reserve_history, room, building
+			WHERE TO_CHAR(START_DATE, 'YYYYMMDD') >= (SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') FROM DUAL) 
+				AND reserve_history.room_NO = room.room_NO
+		        AND room.BUILD_NO = building.BUILD_NO
+		        AND reserve_history.RESERVE_EMP_NO = #{empNo}
+			 	AND (start_date &gt;= #{timeSelectStart} AND end_date &lt;= #{timeSelectEnd} )
+	   -->		 	
+		SELECT reserve_history.*, room.room_name, building.build_name 
+			FROM reserve_history, room, building
+			WHERE DATE_FORMAT(START_DATE, '%Y-%m-%d') >= (SELECT DATE_FORMAT(now() , '%Y-%m-%d')) 
+				AND reserve_history.room_NO = room.room_NO
+		        AND room.BUILD_NO = building.BUILD_NO
+		        AND reserve_history.RESERVE_EMP_NO = #{empNo}
+			 	AND (start_date &gt;= #{timeSelectStart} AND end_date &lt;= #{timeSelectEnd} )	 	
+	</select>
+	
+	 <!--  사용자 예약이력에서 날짜 조건 검색   -->
+	 <select id="selectHistoryFiltering" parameterType="map" resultMap="MypageDTO">
+		SELECT reserve_history.*, employee.EMP_NAME, room.room_name , building.build_name 
+			FROM reserve_history, employee, room, building
+			WHERE reserve_history.RESERVE_EMP_NO = employee.EMP_NO 
+				AND reserve_history.room_NO = room.room_NO
+				AND room.BUILD_NO = building.BUILD_NO
+				AND reserve_history.RESERVE_EMP_NO = #{empNo}
+               	AND (start_date &gt;= #{timeSelectStart} AND end_date &lt;= #{timeSelectEnd} )
+	</select>
+  
+</mapper>
+
+<!-- 
+	SELECT reserve_history.*, employee.EMP_NAME, room.room_name , building.build_name 
+			FROM reserve_history, employee, room, building
+			WHERE reserve_history.RESERVE_EMP_NO = employee.EMP_NO 
+				AND reserve_history.room_NO = room.room_NO
+				AND room.BUILD_NO = building.BUILD_NO
+				AND reserve_history.RESERVE_EMP_NO = #{empNo}
+				AND (((TO_DATE (#{timeSelectStart})<![CDATA[<]]>= start_date AND start_date <![CDATA[<]]>= TO_DATE (#{timeSelectEnd}))
+                 OR (TO_DATE (#{timeSelectStart})<![CDATA[<]]>= end_date AND end_date <![CDATA[<]]>= TO_DATE (#{timeSelectEnd}))))
+ -->
+ 
+ <!--  
+ 		SELECT reserve_history.*, employee.EMP_NAME, room.room_name , building.build_name 
+			FROM reserve_history, employee, room, building
+			WHERE reserve_history.RESERVE_EMP_NO = employee.EMP_NO 
+				AND reserve_history.room_NO = room.room_NO
+				AND room.BUILD_NO = building.BUILD_NO
+				AND reserve_history.RESERVE_EMP_NO = #{empNo}
+				AND (((TO_DATE (#{timeSelectStart})<![CDATA[<=]]>= start_date 
+                 	AND end_date <![CDATA[<=]]>= TO_DATE (#{timeSelectEnd}))))
+  -->
+    
+  <!--  
+  		SELECT reserve_history.*, employee.EMP_NAME, room.room_name , building.build_name 
+			FROM reserve_history, employee, room, building
+			WHERE reserve_history.RESERVE_EMP_NO = employee.EMP_NO 
+				AND reserve_history.room_NO = room.room_NO
+				AND room.BUILD_NO = building.BUILD_NO
+				AND reserve_history.RESERVE_EMP_NO = #{empNo}
+               	AND (	
+	            	reserve_history.start_date BETWEEN TO_DATE(#{timeSelectStart}, 'yyyy/mm/dd') AND TO_DATE(#{timeSelectEnd}, 'yyyy/mm/dd')
+	            	OR reserve_history.end_date BETWEEN TO_DATE(#{timeSelectStart}, 'yyyy/mm/dd') AND TO_DATE(#{timeSelectEnd}, 'yyyy/mm/dd')
+	            )
+   -->

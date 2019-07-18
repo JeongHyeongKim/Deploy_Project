@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="reserveHistoryMapper">
+	<resultMap type="reserveHistory" id="ReserveHistoryDTO">
+		<result column="reserve_no" property="reserveNo"/>
+		<result column="room_no" property="roomNo"/>
+		<result column="reserve_emp_no" property="reserveEmpNo"/>
+		<result column="start_date" property="startDate"/>
+		<result column="end_date" property="endDate"/>
+		<result column="approval1_yn" property="approval1Yn"/>
+		<result column="approval1_emp_no" property="approval1EmpNo"/>
+		<result column="approval1_date" property="approval1Date"/>
+		<result column="approval2_yn" property="approval2Yn"/>
+		<result column="approval2_emp_no" property="approval2EmpNo"/>
+		<result column="approval2_date" property="approval2Date"/>
+		<result column="payment_yn" property="paymentYn"/>
+		<result column="payment_date" property="paymentDate"/>
+		<result column="reserve_date" property="reserveDate"/>
+		<result column="reserve_price" property="reservePrice"/>
+		<result column="purpose" property="purpose"/>
+		<result column="category" property="category"/>
+		<result column="priority" property="priority"/>
+		<result column="emp_count" property="empCount"/>
+		<result column="snack_yn" property="snackYn"/>
+		<result column="reason" property="reason"/>
+		<result column="title" property="title"/>
+	</resultMap>
+	
+	<resultMap type="meetingMember" id="MeetingMemberDTO">
+		<result column="reserve_no" property="reserveNo"/>
+		<result column="emp_no" property="empNo"/>
+		<result column="dept_name" property="deptName"/>
+	</resultMap>
+	
+	<resultMap type="meetingEquipment" id="MeetingEquipmentDTO">
+		<result column="reserve_no" property="reserveNo"/>
+		<result column="eq_no" property="eqNo"/>
+		<result column="eq_count" property="eqCount"/>
+	</resultMap>
+	
+	<resultMap type="competentDepartment" id="CompetentDepartmentDTO">
+		<result column="reserve_no" property="reserveNo"/>
+		<result column="dept_no" property="deptNo"/>
+		<result column="emp_count" property="empCount"/>
+	</resultMap>
+	
+	<resultMap type="reserveHistory" id="reserveHistoryFull" extends="ReserveHistoryDTO">
+		<collection property="meetingMemberList" ofType="meetingMember" resultMap="MeetingMemberDTO"></collection>
+		<collection property="competentDepartmentList" ofType="meetingEquipment" resultMap="MeetingEquipmentDTO"></collection>
+		<collection property="meetingEquipmentList" ofType="competentDepartment" resultMap="CompetentDepartmentDTO"></collection>
+	</resultMap>
+	<!-- End of resultMap -->
+   
+	<!-- 회원번호로 예약내역 조회 -->
+	<select id="getReservationListByEmpNo" parameterType="String" resultMap="ReserveHistoryDTO">
+		SELECT * FROM reserve_history 
+		WHERE reserve_emp_no = #{empNo} AND start_date &gt; NOW()
+	</select>
+	
+	<!-- 회의실번호로 예약내역 조회 -->
+	<select id="getReservationListByRoomNo" parameterType="int" resultMap="ReserveHistoryDTO">
+		SELECT * FROM reserve_history 
+		WHERE room_no = #{roomNo} AND start_date &gt; NOW()
+	</select>
+	
+	<!-- 회의실 예약 : 지사, 회의실구분별 예약목록 조회  -->
+	<select id="getReservationList" parameterType="java.util.Map" resultType="map">
+	<!--
+		<![CDATA[
+			SELECT 
+			    r.room_name AS roomName,
+			    r.room_no AS roomNo,
+			    r.network_yn AS networkYn, 
+			    b.build_no AS buildNo,
+			    b.build_name AS buildName,
+			    rh.reserve_no AS reserveNo,
+			    rh.start_date AS startDate,
+			    rh.end_date AS endDate,
+			    rh.purpose AS purpose,
+			    rh.category AS category,
+			    rh.emp_count AS empCount,
+			    rh.snack_yn AS snackYn,
+			    rh.reason AS reason,
+			    rh.title AS title,
+			    rh.approval1_yn AS approval1Yn,
+			    rh.approval2_yn AS approval2Yn
+			FROM reserve_history rh, room r, building b
+			WHERE rh.room_no = r.room_no
+			    AND r.build_no = b.build_no
+			    AND ( 
+			    	rh.end_date > sysdate
+			    	OR
+			    	rh.start_date > TO_DATE((TO_CHAR(sysdate, 'yyyy-mm-dd')||' 00:00'), 'yyyy-mm-dd hh24:mi')
+			    	)
+			    AND b.build_no like '%${buildNo}%'
+			    AND r.room_type like '%${roomType}%'
+		]]>	
+	-->
+	
+			<![CDATA[
+			SELECT 
+			    r.room_name AS roomName,
+			    r.room_no AS roomNo,
+			    r.network_yn AS networkYn, 
+			    b.build_no AS buildNo,
+			    b.build_name AS buildName,
+			    rh.reserve_no AS reserveNo,
+			    rh.start_date AS startDate,
+			    rh.end_date AS endDate,
+			    rh.purpose AS purpose,
+			    rh.category AS category,
+			    rh.emp_count AS empCount,
+			    rh.snack_yn AS snackYn,
+			    rh.reason AS reason,
+			    rh.title AS title,
+			    rh.approval1_yn AS approval1Yn,
+			    rh.approval2_yn AS approval2Yn
+			FROM reserve_history rh, room r, building b
+			WHERE rh.room_no = r.room_no
+			    AND r.build_no = b.build_no
+			    AND b.build_no like '%${buildNo}%'
+			    AND r.room_type like '%${roomType}%'
+		]]>	
+	</select>
+	<!-- 
+				    AND ( 
+			    	rh.end_date > NOW()
+			    	OR
+			    	rh.start_date > NOW()
+			    	)
+	 -->
+	
+	<!-- 날짜별 예약 시간 받아오기 -->
+	<select id="getTimeByDate" parameterType="map" resultType="map">
+	<!-- 
+		<![CDATA[
+			SELECT 
+			    rh.start_date AS startDate,
+			    rh.end_date AS endDate
+			FROM reserve_history rh, room r, building b
+			WHERE rh.room_no = r.room_no
+			    AND r.build_no = b.build_no
+			    AND b.build_no like '%${buildNo}%'
+			    AND r.room_no like '%${roomNo}%'
+			    AND (
+			    		( 
+			    			rh.start_date BETWEEN TO_DATE(#{startDate}, 'yyyy/mm/dd hh24:mi') AND TO_DATE(#{startDate}, 'yyyy/mm/dd hh24:mi')+1
+        					OR 
+        					rh.end_date BETWEEN TO_DATE(#{startDate}, 'yyyy/mm/dd hh24:mi') AND TO_DATE(#{startDate}, 'yyyy/mm/dd hh24:mi')+1
+        				)
+        				OR
+        				(
+        					TO_DATE(#{startDate}, 'yyyy/mm/dd hh24:mi') BETWEEN rh.start_date AND rh.end_date
+        				)
+        			)
+		]]>
+	  -->
+	  
+	  <![CDATA[
+			SELECT 
+			    rh.start_date AS startDate,
+			    rh.end_date AS endDate
+			FROM reserve_history rh, room r, building b
+			WHERE rh.room_no = r.room_no
+			    AND r.build_no = b.build_no
+			    AND b.build_no like '%${buildNo}%'
+			    AND r.room_no like '%${roomNo}%'
+
+		]]>
+	</select>
+	<!--  
+				    AND (
+			    		( 
+			    			rh.start_date BETWEEN DATE_FORMAT(#{startDate}, '%Y/%m/%d %H:%i') AND DATE_FORMAT(#{startDate}, '%Y/%m/%d %H:%i')+1
+        					OR 
+        					rh.end_date BETWEEN DATE_FORMAT(#{startDate}, '%Y/%m/%d %H:%i') AND DATE_FORMAT(#{startDate}, '%Y/%m/%d %H:%i')+1
+        				)
+        				OR
+        				(
+        					DATE_FORMAT(#{startDate}, '%Y/%m/%d %H:%i') BETWEEN rh.start_date AND rh.end_date
+        				)
+        			)
+	 -->
+
+	<!-- 다음 예약시간 정보를 반환 -->
+	<select id="getNextReservation" parameterType="map" resultType="map">
+	<!-- 
+		<![CDATA[
+			SELECT tt.* FROM (
+			SELECT 
+			    rh.start_date AS startDate,
+			    rh.end_date AS endDate
+			FROM reserve_history rh, room r, building b
+			WHERE rh.room_no = r.room_no
+			    AND r.build_no = b.build_no
+			    AND b.build_no like '%${buildNo}%'
+			    AND r.room_no like '%${roomNo}%'
+			    AND rh.start_date > TO_DATE(#{startDate}, 'yyyy/mm/dd hh24:mi')
+			ORDER BY rh.start_date asc
+			) tt
+			WHERE rownum=1
+		]]>
+		
+					    AND rh.start_date > DATE_FORMAT(#{startDate}, '%Y/%m/%d %H:%i')
+		
+	  -->
+	  
+	  	<![CDATA[
+			SELECT tt.* FROM (
+			SELECT 
+			    rh.start_date AS startDate,
+			    rh.end_date AS endDate
+			FROM reserve_history rh, room r, building b
+			WHERE rh.room_no = r.room_no
+			    AND r.build_no = b.build_no
+			    AND b.build_no like '%${buildNo}%'
+			    AND r.room_no like '%${roomNo}%'
+			ORDER BY rh.start_date asc
+			) tt
+		]]>
+	</select>
+	
+	<!-- 성윤: 회의실 예약 추가 -->
+	<insert id="insertReserveHistory" parameterType="reserveHistory">
+	<!-- 
+		INSERT INTO reserve_history VALUES(
+			reserve_history_seq.nextval, #{roomNo}, #{reserveEmpNo}, #{startDate}, #{endDate}, 
+    		#{approval1Yn}, #{approval1EmpNo}, null, #{approval2Yn}, #{approval2EmpNo}, null, 0, null, SYSDATE, 
+    		#{reservePrice}, #{purpose}, #{category}, 5, #{empCount}, #{snackYn}, null, #{title})
+      -->
+      	INSERT INTO reserve_history 
+      	VALUES ((select * from (select max(reserve_no)+1 from reserve_history) next),
+			#{roomNo}, #{reserveEmpNo}, #{startDate}, #{endDate}, 
+    		#{approval1Yn}, #{approval1EmpNo}, null, #{approval2Yn}, #{approval2EmpNo}, null, 0, null, NOW(), 
+    		#{reservePrice}, #{purpose}, #{category}, 5, #{empCount}, #{snackYn}, null, #{title})
+    		
+	</insert>					
+	
+	<!-- 성윤: 회의실 참석자 명단 추가 -->
+	<!--<insert id="insertMeetingMemberList" parameterType="meetingMember"> 
+	<foreach collection="list" item="item" index="index" separator=" " open="INSERT ALL" close="SELECT * FROM DUAL"> -->
+        <!--  
+            INTO meeting_member_list VALUES(
+	                  reserve_history_seq.currval                 
+	                , #{item.empNo}
+	                , #{item.deptName}
+	           )
+	     -->
+	<!--	</foreach>
+	</insert>    -->
+
+	
+	<!-- 성윤: 회의실 예약 시 비품정보 추가 -->
+	<insert id="insertMeetingEquipmentList" parameterType="meetingEquipment">
+		<selectKey keyProperty="reserveNo" resultType="int" order="AFTER"> SELECT reserve_history_seq.currval FROM dual </selectKey>
+		<foreach collection="list" item="item" index="index" separator=" " open="INSERT ALL" close="SELECT * FROM DUAL"> -->
+		<!-- 
+            INTO meeting_equipment_list VALUES(
+	                  reserve_history_seq.currval  
+	                , #{item.eqNo} 
+	                , #{item.eqCount} 
+	           )
+	    -->
+		</foreach>
+	</insert> 
+	
+	
+	<!-- 성윤: 주관부서 목록 추가 -->
+	<insert id="insertCompetentDepartmentList" parameterType="competentDepartment">
+		<selectKey keyProperty="reserveNo" resultType="int" order="AFTER"> SELECT reserve_history_seq.currval FROM dual </selectKey>
+		<foreach collection="list" item="item" index="index" separator=" " open="INSERT ALL" close="SELECT * FROM DUAL">   -->
+           <!--  
+            INTO competent_department VALUES(
+	                  reserve_history_seq.currval  
+	                , #{item.deptNo} 
+	                , #{item.empCount} 
+	           )
+	       -->
+		 </foreach>
+	</insert> 
+	
+	<!-- 성윤: 예약 -->
+	<select id="getNowReserveNo" resultType="int">
+	<!-- 
+		SELECT reserve_history_SEQ.CURRVAL FROM DUAL
+	-->
+		SELECT max(reserve_no)
+		FROM reserve_history
+	</select>
+	
+	<!-- 민기 : 모든 예약내역 조회 -->
+	<select id="getAllReservationList" resultMap="ReserveHistoryDTO">
+		SELECT * FROM reserve_history
+	</select>
+	
+	<!-- 성윤: 해당 예약 상세정보 조회 -->
+	<select id="selectOneReserveInfo" parameterType="int" resultType="reserveHistory">
+		SELECT * FROM reserve_history WHERE reserve_no = #{reserve_no}
+	</select>
+	
+	<!-- 성윤: 해당 예약 주관부서목록 조회 -->
+	<select id="selectCompetentDeptartmentList" parameterType="int" resultType="competentDepartment">
+		SELECT * FROM competent_department WHERE reserve_no = #{reserve_no}
+	</select>
+	
+	<!-- 성윤: 해당 예약 참석자목록 조회 -->
+	<select id="selectMeetingEquipmentList" parameterType="int" resultType="meetingEquipment">
+		SELECT * FROM meeting_equipment_list WHERE reserve_no = #{reserve_no}
+	</select>
+	
+	<!-- 성윤: 해당 예약 비품목록 조회 -->
+	<select id="selectMeetingMemberList" parameterType="int" resultType="meetingMember">
+		SELECT * FROM meeting_member_list WHERE reserve_no = #{reserve_no}
+	</select>
+	
+	<!-- 성윤: 에약번호로 예약내역 조회 -->
+	<select id="getReservationByReserveNo" parameterType="int" resultMap="ReserveHistoryDTO">
+		SELECT * FROM reserve_history 
+		WHERE reserve_no = #{reserveNo}
+	</select>
+	
+	<!--민기: 해당 사람이 승인자인 예약 조회 -->
+	<select id="selectReserveByApproverNo" resultMap="ReserveHistoryDTO">
+		SELECT * FROM reserve_history where APPROVAL1_EMP_NO = #{empNo} OR APPROVAL2_EMP_NO = #{empNo}
+	</select>
+</mapper>

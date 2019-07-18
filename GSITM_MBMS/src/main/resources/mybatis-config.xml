@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+		<setting name="jdbcTypeForNull" value="NULL"/>
+	</settings>
+	<typeAliases>
+		<typeAlias type="com.gsitm.mbms.employee.EmployeeDTO" alias="employee"/>
+		<typeAlias type="com.gsitm.mbms.employee.DepartmentDTO" alias="department"/>
+		<typeAlias type="com.gsitm.mbms.notice.NoticeDTO" alias="notice"/>
+		<typeAlias type="com.gsitm.mbms.building.BuildingDTO" alias="building"/>
+		<typeAlias type="com.gsitm.mbms.room.RoomDTO" alias="room"/>
+		<typeAlias type="com.gsitm.mbms.reserve.ReserveHistoryDTO" alias="reserveHistory"/>
+		<typeAlias type="com.gsitm.mbms.reserve.CompetentDepartmentDTO" alias="competentDepartment"/>
+		<typeAlias type="com.gsitm.mbms.reserve.MeetingEquipmentDTO" alias="meetingEquipment"/>
+		<typeAlias type="com.gsitm.mbms.reserve.MeetingMemberDTO" alias="meetingMember"/>
+		<typeAlias type="com.gsitm.mbms.equipment.EquipmentDTO" alias="equipment"/>
+		<typeAlias type="com.gsitm.mbms.payment.PaymentDTO" alias="payment"/>
+		<typeAlias type="com.gsitm.mbms.mypage.MypageDTO" alias="mypage"/>
+		<typeAlias type="com.gsitm.mbms.stats.HistoryForStatsDTO" alias="historyForStats"/>
+		<typeAlias type="com.gsitm.mbms.stats.FrequencyDTO" alias="frequency"/>
+		<typeAlias type="com.gsitm.mbms.approval.ApprovalDTO" alias="approval"/>
+	</typeAliases>
+</configuration>
