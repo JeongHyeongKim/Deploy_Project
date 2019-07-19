@@ -89,34 +89,44 @@ public class RoomController {
 			String fileUrl="";
 			System.out.println(dto+"---------------------------");
 			logger.info("Room Insert Action!");
-			//String imgpUploadPath = request.getSession().getServletContext().getRealPath("/resources/") + File.separator + "imgUpload";
+			String imgpUploadPath = request.getSession().getServletContext().getRealPath("/resources/") + File.separator + "imgUpload";
 			//String ymdPath = UploadFileUtils.calcPath(imgpUploadPath);
 			
 			if(file !=null) {
+				File newFile = new File(file.getOriginalFilename());
+				file.transferTo(newFile);
+				FileSaferScanning fileSaferScanning = new FileSaferScanning(newFile);
+				
+				if(fileSaferScanning.sendRequest()!=0) {
+					//에러메시지 출력 추가해보자.
+					return "redirect:/room/roomManageList";
+				}else {
 				//fileName = UploadFileUtils.fileUpload(imgpUploadPath, file.getOriginalFilename(), file.getBytes(), ymdPath);
-				ObjectStorageUpload ob = new ObjectStorageUpload(file, roomService.selectGetMaxId());
+				ObjectStorageUpload ob = new ObjectStorageUpload(newFile, roomService.selectGetMaxId());
 				fileUrl = ob.sendRequest();
+				dto.setRoomImg(fileUrl);
+				System.out.println(dto.getRoomImg());
+				roomService.roomInsert(dto);
+				
+				if(eqNameList!=null) {
+					StringTokenizer nameToken = new StringTokenizer(eqNameList, ",");
+					StringTokenizer countToken = new StringTokenizer(eqCountList, ",");
+					
+					 while(nameToken.hasMoreTokens()) {	 
+						 EquipmentDTO equipmentDTO = new EquipmentDTO(dto.getRoomNo(),0, nameToken.nextToken(),Integer.parseInt(countToken.nextToken()));
+						 equipmentService.equipmentInsert(equipmentDTO);
+					 }
+				}
+				return "redirect:/room/roomManageList?type=insert";	
+				//파일에 에러 없을때!
+				}
 				
 			}
 			else {
-				//파일이 null일때 거르는 것을 홈페이지 단에서 원레 해야함!
+				return "redirect:/room/roomInsertForm";
 			}
 			
-			dto.setRoomImg(fileUrl);
-			System.out.println(dto.getRoomImg());
-			//roomService.roomInsert(dto);
 			
-			if(eqNameList!=null) {
-				StringTokenizer nameToken = new StringTokenizer(eqNameList, ",");
-				StringTokenizer countToken = new StringTokenizer(eqCountList, ",");
-				
-				 while(nameToken.hasMoreTokens()) {	 
-					 EquipmentDTO equipmentDTO = new EquipmentDTO(dto.getRoomNo(),0, nameToken.nextToken(),Integer.parseInt(countToken.nextToken()));
-					 equipmentService.equipmentInsert(equipmentDTO);
-				 }
-			}
-			
-			return "redirect:/room/roomManageList?type=insert";	
 		}
 		
 		@RequestMapping(value="/getEmployeeSearch",method=RequestMethod.POST)
