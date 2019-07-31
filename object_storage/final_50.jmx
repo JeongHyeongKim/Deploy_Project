@@ -17,7 +17,7 @@
             <stringProp name="Authorization.url">/loginCheck</stringProp>
             <stringProp name="Authorization.username">it1012</stringProp>
             <stringProp name="Authorization.password">1q2w3e4r!@</stringProp>
-            <stringProp name="Authorization.domain">10.41.166.237</stringProp>
+            <stringProp name="Authorization.domain">192.168.0.80</stringProp>
             <stringProp name="Authorization.realm"></stringProp>
           </elementProp>
         </collectionProp>
@@ -65,7 +65,7 @@
         <collectionProp name="CookieManager.cookies">
           <elementProp name="loginCookie" elementType="Cookie" testname="loginCookie">
             <stringProp name="Cookie.value">it1012</stringProp>
-            <stringProp name="Cookie.domain">10.41.166.237</stringProp>
+            <stringProp name="Cookie.domain">192.168.0.80</stringProp>
             <stringProp name="Cookie.path">/</stringProp>
             <boolProp name="Cookie.secure">false</boolProp>
             <longProp name="Cookie.expires">0</longProp>
@@ -130,8 +130,8 @@
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">10.41.166.237</stringProp>
-          <stringProp name="HTTPSampler.port">80</stringProp>
+          <stringProp name="HTTPSampler.domain">192.168.0.80</stringProp>
+          <stringProp name="HTTPSampler.port">9999</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
           <stringProp name="HTTPSampler.path">/</stringProp>
@@ -183,8 +183,8 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">10.41.166.237</stringProp>
-          <stringProp name="HTTPSampler.port">80</stringProp>
+          <stringProp name="HTTPSampler.domain">192.168.0.80</stringProp>
+          <stringProp name="HTTPSampler.port">9999</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
           <stringProp name="HTTPSampler.path">/reserve/doReserve</stringProp>
@@ -239,8 +239,8 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">10.41.166.237</stringProp>
-          <stringProp name="HTTPSampler.port">80</stringProp>
+          <stringProp name="HTTPSampler.domain">192.168.0.80</stringProp>
+          <stringProp name="HTTPSampler.port">9999</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
           <stringProp name="HTTPSampler.path">/logincheck</stringProp>
@@ -297,10 +297,10 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">10.41.166.237</stringProp>
-          <stringProp name="HTTPSampler.port">80</stringProp>
+          <stringProp name="HTTPSampler.domain">192.168.0.80</stringProp>
+          <stringProp name="HTTPSampler.port">9999</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
           <stringProp name="HTTPSampler.path">/notice/noticeInsert</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -349,8 +349,8 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">10.41.166.237</stringProp>
-          <stringProp name="HTTPSampler.port">80</stringProp>
+          <stringProp name="HTTPSampler.domain">192.168.0.80</stringProp>
+          <stringProp name="HTTPSampler.port">9999</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
           <stringProp name="HTTPSampler.path">/reserve/getReservationList</stringProp>
